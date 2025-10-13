@@ -30,4 +30,4 @@ This workshop is ideal for developers, engineers, and AI enthusiasts who want a 
     - Java with JUnit and WireMock
     - JavaScript or TypeScript with Jest and mswjs
     - Python with pytest and request-mock
-    or another language and http mocking tool of your choice
+    - or another language and http mocking tool of your choice
