@@ -15,7 +15,7 @@ In this hands-on workshop, you'll learn how to program your own AI agent from sc
 - Use integration tests to manage and validate interactions with the infrastructure layer
 - Learn how the Agent Loop operates and how to implement it incrementally
 
-## hedule
+## Schedule
 This is a half-day workshop. It takes 4 hours.
 
 ## Who is This For
