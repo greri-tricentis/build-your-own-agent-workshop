@@ -1,0 +1,35 @@
+### Simple Chat
+POST http://localhost:11434/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "gemma3:1b",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant."
+    },
+    {
+      "role": "user",
+      "content": "Hello!"
+    }
+  ]
+}
+
+### Tool Instruction
+POST http://localhost:11434/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "gemma3:1b",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant. You have access to a tool called <tool>get-weather {city}</tool> that returns the current weather for a given city. Use it when the user asks about the weather. When the user asks about the weather in Vienna, send <tool>get-weather Vienna</tool> to get the weather information."
+    },
+    {
+      "role": "user",
+      "content": "What's the weather in Vienna?"
+    }
+  ]
+}
