@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <RootNamespace>AgentTest</RootNamespace>
+        <RootNamespace>Agent.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +20,11 @@
 
     <ItemGroup>
         <Using Include="NUnit.Framework"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Agent.Application\Agent.Application.csproj" />
+        <ProjectReference Include="..\Agent.Infrastructure\Agent.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
