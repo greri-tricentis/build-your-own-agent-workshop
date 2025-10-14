@@ -1,10 +1,10 @@
 ﻿namespace Agent.Tests;
 
-public class AgentLoopTests
+public class AgentTests
 {
     [Test]
     public void Test1()
     {
-        Assert.Pass();
+        Assert.Fail();
     }
 }

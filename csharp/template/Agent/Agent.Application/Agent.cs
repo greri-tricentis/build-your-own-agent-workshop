@@ -1,6 +1,6 @@
 namespace Agent.Application;
 
-public class AgentLoop(ILanguageModel model)
+public class Agent(ILanguageModel model)
 {
     public void Run()
     {
