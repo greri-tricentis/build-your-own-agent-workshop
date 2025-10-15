@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { agent, Display, Input, LanguageModel, Message } from "./agent";
+import _ from "lodash";
 
 describe("Agent", () => {
   let textOnDisplay = "";
@@ -13,7 +14,11 @@ describe("Agent", () => {
   });
 
   const languageModelStub: LanguageModel = (messages: Message[]) => {
-    return { role: "agent", content: "Hi there! Yes, you are right!" };
+    if (_.isEqual(messages[0], { role: "user", content: "Hello, Agent!" })) {
+      return { role: "agent", content: "Hi there! Yes, you are right!" };
+    }
+
+    throw new Error("Unexpected input to language model");
   }
 
   const inputStub: Input = () => {
