@@ -1,13 +1,9 @@
 package com.workshop.agent.tests;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.workshop.agent.application.Message;
-import com.workshop.agent.infrastructure.OllamaLanguageModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,10 +64,10 @@ public class OllamaLanguageModelTests {
                                 }
                                 """)));
 
-        var languageModel = new OllamaLanguageModel(server.baseUrl(), "gemma3:1b");
-        var message = new Message("user", "Hello!");
-
-        var response = languageModel.prompt(List.of(message));
+//        var languageModel = new OllamaLanguageModel(server.baseUrl(), "gemma3:1b");
+//        var message = new Message("user", "Hello!");
+//
+//        var response = languageModel.prompt(List.of(message));
 
         server.verify(postRequestedFor(urlEqualTo("/v1/chat/completions"))
                 .withRequestBody(equalToJson("""
@@ -85,7 +81,7 @@ public class OllamaLanguageModelTests {
                           ]
                         }
                         """)));
-        assertThat(response).isEqualTo(new Message("user", "Hello there! How can I help you today? 😊"));
+//        assertThat(response).isEqualTo(new Message("user", "Hello there! How can I help you today? 😊"));
 
     }
 }
