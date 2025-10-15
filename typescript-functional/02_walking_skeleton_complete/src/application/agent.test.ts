@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { agent, Display, Input } from "./agent";
 
 describe("Agent", () => {
   let textOnDisplay = "";
@@ -8,15 +9,6 @@ describe("Agent", () => {
     expect(textOnDisplay).toBe("User: Hello, Agent!");
   });
   
-  type Input = () => string;
-  type Display = (text: string) => void;
-  type Agent = (input: Input, display: Display) => void;
-
-  const agent: Agent = (input: Input, display: Display) => {
-    const message = input();
-    display(`User: ${message}`);
-  };
-
   const inputStub: Input = () => {
     return "Hello, Agent!"
   };
