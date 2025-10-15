@@ -4,20 +4,24 @@ describe("Agent", () => {
   let textOnDisplay = "";
 
   it("displays message from user", () => {
-    const message = input();
-    display(`User: ${message}`);
+    agent(inputStub, displaySpy);
     expect(textOnDisplay).toBe("User: Hello, Agent!");
   });
   
   type Input = () => string;
   type Display = (text: string) => void;
-  
-  const input: Input = () => {
+  type Agent = (input: Input, display: Display) => void;
+
+  const agent: Agent = (input: Input, display: Display) => {
+    const message = input();
+    display(`User: ${message}`);
+  };
+
+  const inputStub: Input = () => {
     return "Hello, Agent!"
   };
 
-
-  const display: Display = (text: string) => {
+  const displaySpy: Display = (text: string) => {
     textOnDisplay += text
   };
 });
