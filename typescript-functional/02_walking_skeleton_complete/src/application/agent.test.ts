@@ -9,6 +9,14 @@ describe("Agent", () => {
     expect(textOnDisplay).toBe("User: Hello, Agent!");
   });
   
+  it("sends user input to llm and displays its answer", () => {
+    agent(inputStub, displaySpy, languageModel);
+    expect(textOnDisplay).toBe(
+      "User: Hello, Agent!\n" +
+      "Agent: Hi there! Yes, you are right!"
+    );
+  });
+
   const inputStub: Input = () => {
     return "Hello, Agent!"
   };
