@@ -15,7 +15,7 @@ describe("Agent", () => {
     );
   });
 
-  it("displays ongoing chat", async () => {
+  it("displays ongoing chat, and sends whole context to llm", async () => {
     inputs = [
       "Hello, Agent!",
       "I have another message for you!",
@@ -30,6 +30,17 @@ describe("Agent", () => {
       "User: I have another message for you!\n" +
       "Agent: You said: \"I have another message for you!\"\n"
     );
+    expect(promptedMessages).toEqual([
+      {
+        role: "system", content: `Always answer with a bash command using the syntax: <bash>command</bash>. 
+For example: send <bash>ls -la</bash> to list all files. 
+Send <bash>pwd</bash> to print the working directory. 
+Only ever respond with a single bash command, and no other text.` },
+      { role: "user", content: "Hello, Agent!" },
+      { role: "agent", content: "You said: \"Hello, Agent!\"" },
+      { role: "user", content: "I have another message for you!" },
+      { role: "agent", content: "You said: \"I have another message for you!\"" }
+    ]);
   });
 
   it("parses tool call and runs it, and reports result to agent", async () => {
@@ -48,6 +59,11 @@ describe("Agent", () => {
       "Agent: You have 44GB of free disk space available.\n"
     );
     expect(promptedMessages).toEqual([
+      {
+        role: "system", content: `Always answer with a bash command using the syntax: <bash>command</bash>. 
+For example: send <bash>ls -la</bash> to list all files. 
+Send <bash>pwd</bash> to print the working directory. 
+Only ever respond with a single bash command, and no other text.` },
       { role: "user", content: "What's the free disk space on my computer?" },
       { role: "agent", content: "<bash>df -h</bash>" },
       { role: "user", content: "Avail 44G" },
@@ -60,7 +76,9 @@ describe("Agent", () => {
     return inputs.shift()!;
   };
 
+  let promptedMessages: Message[] = [];
   const repeatingLanguageModel: LanguageModel = async (messages: Message[]) => {
+    promptedMessages = messages;
     const userMessage = messages[messages.length - 1];
     return {
       role: "agent",
@@ -69,7 +87,6 @@ describe("Agent", () => {
   }
 
   let agentAnswers: string[] = [];
-  let promptedMessages: Message[] = [];
   const languageModelStub: LanguageModel = async (messages: Message[]) => {
     promptedMessages = messages;
     const answer = agentAnswers.shift();
@@ -77,7 +94,7 @@ describe("Agent", () => {
   }
 
   const toolStub: Tool = (message: string) => {
-    if(message === "<bash>df -h</bash>") {
+    if (message === "<bash>df -h</bash>") {
       return Promise.resolve("Avail 44G");
     }
     return undefined;

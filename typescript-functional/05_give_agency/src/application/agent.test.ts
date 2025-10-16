@@ -31,7 +31,8 @@ describe("Agent", () => {
       "Agent: You said: \"I have another message for you!\"\n"
     );
     expect(promptedMessages).toEqual([
-      { role: "system", content: `Always answer with a bash command using the syntax: <bash>command</bash>. 
+      {
+        role: "system", content: `Always answer with a bash command using the syntax: <bash>command</bash>. 
 For example: send <bash>ls -la</bash> to list all files. 
 Send <bash>pwd</bash> to print the working directory. 
 Only ever respond with a single bash command, and no other text.` },
