@@ -14,10 +14,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/lodash": "^4.17.20",
     "@types/node": "^22.0.0",
     "msw": "^2.7.0",
     "tsx": "^4.19.2",
     "typescript": "5.9.2",
     "vitest": "3.2.4"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

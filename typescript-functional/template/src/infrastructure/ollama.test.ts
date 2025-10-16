@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { createPromptOllama as createPromptOllama } from "../infrastructure/ollama-language-model.js";
-import { createMessage } from "../application/language-model.js";
+import { promptOllama } from "./ollama";
 
-describe("OllamaLanguageModel", () => {
+describe("Ollama", () => {
   const server = setupServer();
 
   beforeAll(() => server.listen());
@@ -37,10 +36,8 @@ describe("OllamaLanguageModel", () => {
         });
       })
     );
-    const promptOllama = createPromptOllama("http://localhost:11434", "gemma3:1b");
-    const message = createMessage("user", "Hello!");
 
-    const response = await promptOllama([message]);
+    const response = await promptOllama([{ role: "user", content: "Hello!" }]);
 
     expect(capturedRequest).toEqual({
       model: "gemma3:1b",

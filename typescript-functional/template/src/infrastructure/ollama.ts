@@ -1,7 +1,6 @@
-import { PromptLanguageModel, Message } from "../application/language-model.js";
+import { LanguageModel , Message } from "../application/agent";
 
-
-export const createPromptOllama = (serverUrl: string, model: string): PromptLanguageModel => {
+const createPromptOllama = (serverUrl: string, model: string): LanguageModel => {
   return async (messages: readonly Message[]): Promise<Message> => {
     const url = `${serverUrl}/v1/chat/completions`;
     const response = await fetch(url, {
@@ -33,3 +32,5 @@ export type ChatResponse = {
 export type Choice = {
   readonly message: Message;
 };
+
+export const promptOllama = createPromptOllama("http://localhost:11434", "gemma3:1b");
