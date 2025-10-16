@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { agent, Display, Input, LanguageModel, Message } from "./agent";
+import { agent, Display, Input, LanguageModel, Message, Tool } from "./agent";
 import _ from "lodash";
 
 describe("Agent", () => {
@@ -17,8 +17,8 @@ describe("Agent", () => {
 
   it("displays ongoing chat", async () => {
     inputs = [
-      "Hello, Agent!", 
-      "I have another message for you!", 
+      "Hello, Agent!",
+      "I have another message for you!",
       ""
     ];
 
@@ -29,6 +29,19 @@ describe("Agent", () => {
       "Agent: You said: \"Hello, Agent!\"\n" +
       "User: I have another message for you!\n" +
       "Agent: You said: \"I have another message for you!\"\n"
+    );
+  });
+
+  it("parses tool call and runs it", async () => {
+    inputs = ["What's the free disk space on my computer?", ""];
+    agentAnswers = ["<bash>df -h</bash>"];
+
+    await agent(inputStub, displaySpy, languageModelStub, toolStub);
+
+    expect(textOnDisplay).toBe(
+      "User: What's the free disk space on my computer?\n" +
+      "Agent: <bash>df -h</bash>\n" +
+      "User: Avail 44G\n"
     );
   });
 
@@ -43,6 +56,19 @@ describe("Agent", () => {
       role: "agent",
       content: `You said: "${userMessage.content}"`
     };
+  }
+
+  let agentAnswers: string[] = [];
+  const languageModelStub: LanguageModel = async (messages: Message[]) => {
+    const answer = agentAnswers.shift();
+    return { role: "agent", content: answer || "" };
+  }
+
+  const toolStub: Tool = (message: string) => {
+    if(message === "<bash>df -h</bash>") {
+      return Promise.resolve("Avail 44G");
+    }
+    return undefined;
   }
 
   let textOnDisplay = "";
