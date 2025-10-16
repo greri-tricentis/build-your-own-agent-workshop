@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { LanguageModel } from "../application/agent";
+import { promptOllama } from "./ollama";
 
 describe("Ollama", () => {
   const server = setupServer();
@@ -37,9 +37,6 @@ describe("Ollama", () => {
       })
     );
 
-    const promptOllama: LanguageModel = (messages) => {
-      throw new Error("Not implemented");
-    };
     const response = await promptOllama([{ role: "user", content: "Hello!" }]);
 
     expect(capturedRequest).toEqual({

@@ -9,7 +9,7 @@ export async function ask(): Promise<string> {
   return answer
 }
 
-const llmStub: LanguageModel = (messages: Message[]) => {
+const llmStub: LanguageModel = async (messages: Message[]) => {
     const userMessage = messages[messages.length - 1];
     return {
         role: "agent",
