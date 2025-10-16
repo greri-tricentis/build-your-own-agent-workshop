@@ -5,7 +5,12 @@ export type Message = { role: "user" | "agent" | "system" ; content: string };
 export type LanguageModel = (messages: Message[]) => Promise<Message>;
 
 export const agent: Agent = async (input: Input, display: Display, languageModel: LanguageModel) => {
-  let context = [{ role: "system", content: "You're a bash expert with a bash tool. Use with <bash>{command}</bash> to run the command. For example, send <bash>ls -la</bash> to list files. One command per answer." }] as Message[];  
+  let context = [{ role: "system", 
+    content: `Always answer with a bash command using the syntax: <bash>command</bash>. 
+For example: send <bash>ls -la</bash> to list all files. 
+Send <bash>pwd</bash> to print the working directory. 
+Only ever respond with a single bash command, and no other text.`
+  }] as Message[];  
   while(true) {
     const message = await input();
     if (message.trim() === "") {

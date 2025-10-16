@@ -1,6 +1,7 @@
 import { agent, LanguageModel, Message } from "./application/agent"
 import { createInterface } from "readline/promises"
 import { stdin as input, stdout as output } from "node:process"
+import { promptOllama } from "./infrastructure/ollama"
 
 export async function userInput(): Promise<string> {
   const rl = createInterface({ input, output })
@@ -21,7 +22,7 @@ async function main() {
     agent(
         userInput,
         (text) => console.log(text),
-        llmStub
+        promptOllama//llmStub
     );
 }
 
