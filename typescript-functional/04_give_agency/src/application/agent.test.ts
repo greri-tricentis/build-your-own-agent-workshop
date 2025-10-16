@@ -5,7 +5,7 @@ import _ from "lodash";
 describe("Agent", () => {
 
   it("displays message from user, sends user input to llm and displays its answer", async () => {
-    inputs = ["Hello, Agent!"];
+    inputs = ["Hello, Agent!", ""];
 
     await agent(inputStub, displaySpy, repeatingLanguageModel);
 
@@ -33,7 +33,7 @@ describe("Agent", () => {
   });
 
   let inputs: string[] = [];
-  const inputStub: Input = () => {
+  const inputStub: Input = async () => {
     return inputs.shift()!;
   };
 

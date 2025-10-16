@@ -2,7 +2,7 @@ import { agent, LanguageModel, Message } from "./application/agent"
 import { createInterface } from "readline/promises"
 import { stdin as input, stdout as output } from "node:process"
 
-export async function ask(): Promise<string> {
+export async function userInput(): Promise<string> {
   const rl = createInterface({ input, output })
   const answer = await rl.question("> ")
   rl.close()
@@ -18,10 +18,8 @@ const llmStub: LanguageModel = async (messages: Message[]) => {
 };
 
 async function main() {
-    const userInput = await ask();
-
     agent(
-        () => userInput.trim(),
+        userInput,
         (text) => console.log(text),
         llmStub
     );
