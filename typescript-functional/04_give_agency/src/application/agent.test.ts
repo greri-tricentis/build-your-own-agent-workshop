@@ -3,23 +3,23 @@ import { agent, Display, Input, LanguageModel, Message } from "./agent";
 import _ from "lodash";
 
 describe("Agent", () => {
-  
+
   it("displays message from user, sends user input to llm and displays its answer", async () => {
     inputs = ["Hello, Agent!"];
 
-    await agent(inputStub, displaySpy, languageModelStub);
-    
+    await agent(inputStub, displaySpy, repeatingLanguageModel);
+
     expect(textOnDisplay).toBe(
       "User: Hello, Agent!\n" +
-      "Agent: Hi there! Yes, you are right!\n"
+      "Agent: You said: \"Hello, Agent!\"\n"
     );
   });
-  
+
   it.skip("displays ongoing chat", async () => {
     inputs = ["Hello, Agent!"];
 
-    await agent(inputStub, displaySpy, languageModelStub);
-    
+    await agent(inputStub, displaySpy, repeatingLanguageModel);
+
     expect(textOnDisplay).toBe(
       "User: Hello, Agent!\n" +
       "Agent: Hi there! Yes, you are right!\n"
@@ -30,15 +30,15 @@ describe("Agent", () => {
   const inputStub: Input = () => {
     return inputs.shift()!;
   };
-  
-  const languageModelStub: LanguageModel = async (messages: Message[]) => {
-    if (_.isEqual(messages[0], { role: "user", content: "Hello, Agent!" })) {
-      return { role: "agent", content: "Hi there! Yes, you are right!" };
-    }
-    
-    throw new Error("Unexpected input to language model");
+
+  const repeatingLanguageModel: LanguageModel = async (messages: Message[]) => {
+    const userMessage = messages[messages.length - 1];
+    return {
+      role: "agent",
+      content: `You said: "${userMessage.content}"`
+    };
   }
-  
+
   let textOnDisplay = "";
   afterEach(() => {
     textOnDisplay = "";
