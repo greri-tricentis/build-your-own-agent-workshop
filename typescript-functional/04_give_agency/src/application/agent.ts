@@ -12,18 +12,25 @@ export const agent: Agent = async (input: Input, display: Display, languageModel
     if (message.trim() === "") {
       break;
     }
-    display(`User: ${message}`);
-    context.push({ role: "user", content: message });
+    recordUserMessage(message);
     const response = await languageModel(context);
-    display(`Agent: ${response.content}`);
-    context.push(response);
+    recordMessage(response);
     let toolResult = await tool(response.content);
     if(toolResult) {
-      display(`User: ${toolResult}`);
-      context.push({ role: "user", content: toolResult });  
+      recordUserMessage(toolResult);
       const response = await languageModel(context);
-      display(`Agent: ${response.content}`);
-      context.push(response);
+      recordMessage(response);
     }
   }
+
+  function recordUserMessage(message: string) {
+    recordMessage({ role: "user", content: message });
+  }
+
+  function recordMessage(response: Message) {
+    const capitalizedRole = response.role.charAt(0).toUpperCase() + response.role.slice(1);
+    display(`${capitalizedRole}: ${response.content}`);
+    context.push(response);
+  }
+
 }
