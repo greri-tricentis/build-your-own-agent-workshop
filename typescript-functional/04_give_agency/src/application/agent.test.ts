@@ -15,14 +15,20 @@ describe("Agent", () => {
     );
   });
 
-  it.skip("displays ongoing chat", async () => {
-    inputs = ["Hello, Agent!"];
+  it("displays ongoing chat", async () => {
+    inputs = [
+      "Hello, Agent!", 
+      "I have another message for you!", 
+      ""
+    ];
 
     await agent(inputStub, displaySpy, repeatingLanguageModel);
 
     expect(textOnDisplay).toBe(
       "User: Hello, Agent!\n" +
-      "Agent: Hi there! Yes, you are right!\n"
+      "Agent: You said: \"Hello, Agent!\"\n" +
+      "User: I have another message for you!\n" +
+      "Agent: You said: \"I have another message for you!\"\n"
     );
   });
 
