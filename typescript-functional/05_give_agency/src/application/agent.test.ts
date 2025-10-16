@@ -31,6 +31,7 @@ describe("Agent", () => {
       "Agent: You said: \"I have another message for you!\"\n"
     );
     expect(promptedMessages).toEqual([
+      { role: "system", content: "You're a bash expert with a bash tool. Use with <bash>{command}</bash> to run the command. For example, send <bash>ls -la</bash> to list files. One command per answer." },
       { role: "user", content: "Hello, Agent!" },
       { role: "agent", content: "You said: \"Hello, Agent!\"" },
       { role: "user", content: "I have another message for you!" },
