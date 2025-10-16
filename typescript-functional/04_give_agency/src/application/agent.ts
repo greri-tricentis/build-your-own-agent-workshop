@@ -12,15 +12,18 @@ export const agent: Agent = async (input: Input, display: Display, languageModel
     if (message.trim() === "") {
       break;
     }
+    const response = await promptLanguageModelAndRecordResponse(message);
+    let toolResult = await tool(response.content);
+    if(toolResult) {
+      await promptLanguageModelAndRecordResponse(toolResult);
+    }
+  }
+
+  async function promptLanguageModelAndRecordResponse(message: string) {
     recordUserMessage(message);
     const response = await languageModel(context);
     recordMessage(response);
-    let toolResult = await tool(response.content);
-    if(toolResult) {
-      recordUserMessage(toolResult);
-      const response = await languageModel(context);
-      recordMessage(response);
-    }
+    return response;
   }
 
   function recordUserMessage(message: string) {
