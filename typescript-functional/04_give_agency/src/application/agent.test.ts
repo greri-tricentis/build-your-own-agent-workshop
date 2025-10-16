@@ -15,10 +15,10 @@ describe("Agent", () => {
     );
   });
 
-  it("displays ongoing chat", async () => {
+  it("displays ongoing chat, and sends whole context to llm", async () => {
     inputs = [
-      "Hello, Agent!", 
-      "I have another message for you!", 
+      "Hello, Agent!",
+      "I have another message for you!",
       ""
     ];
 
@@ -30,6 +30,12 @@ describe("Agent", () => {
       "User: I have another message for you!\n" +
       "Agent: You said: \"I have another message for you!\"\n"
     );
+    expect(promptedMessages).toEqual([
+      { role: "user", content: "Hello, Agent!" },
+      { role: "agent", content: "You said: \"Hello, Agent!\"" },
+      { role: "user", content: "I have another message for you!" },
+      { role: "agent", content: "You said: \"I have another message for you!\"" }
+    ]);
   });
 
   let inputs: string[] = [];
@@ -37,7 +43,9 @@ describe("Agent", () => {
     return inputs.shift()!;
   };
 
+  let promptedMessages: Message[] = [];
   const repeatingLanguageModel: LanguageModel = async (messages: Message[]) => {
+    promptedMessages = messages;
     const userMessage = messages[messages.length - 1];
     return {
       role: "agent",
@@ -48,6 +56,7 @@ describe("Agent", () => {
   let textOnDisplay = "";
   afterEach(() => {
     textOnDisplay = "";
+    promptedMessages = [];
   });
   const displaySpy: Display = (text: string) => {
     textOnDisplay += text + "\n";
