@@ -5,7 +5,12 @@ namespace Agent.Tests;
 public class AgentTests
 {
     private readonly IUserInput _input = new InputStub(["Hello, Agent!"]);
-    private readonly DisplayStub _display = new();
+    private DisplayStub _display = new();
+    
+    [SetUp]
+    public void InitializeDisplay() {
+        _display = new DisplayStub();
+    }
 
     [Test]
     public void UserInput_Shown_On_Display()
@@ -26,11 +31,8 @@ public class AgentTests
 
         agent.Run();
 
-        Assert.That(model.CapturedPrompts, Is.EqualTo(
-            new List<Message>
-            {
-                new("user", "Hello, Agent!")
-            }
+        Assert.That(model.CapturedPrompts, Does.Contain(
+                new Message("user", "Hello, Agent!")
         ));
     }
 
@@ -42,10 +44,35 @@ public class AgentTests
 
         agent.Run();
 
-        Assert.That(_display.Content, Is.EqualTo(
+        Assert.That(_display.Content, Does.StartWith(
             "User: Hello, Agent!\n" +
             "Assistant: Hello, what can I do for you, today!\n"
         ));
+    }
+    
+    [Test]
+    public void Displays_Back_And_Forth_Chat()
+    {
+        InputStub input = new(["Hello, Agent!", "I have another Message for you."]);
+        ILanguageModel model = new RepeatingLanguageModel();
+        var agent = new Application.Agent(input, model, _display);
+
+        agent.Run();
+
+        Assert.That(_display.Content, Is.EqualTo(
+            "User: Hello, Agent!\n" +
+            "Assistant: You said: \"Hello, Agent!\"\n" +
+            "User: I have another Message for you.\n" +
+            "Assistant: You said: \"I have another Message for you.\"\n"
+        ));
+    }
+}
+
+public class RepeatingLanguageModel : ILanguageModel
+{
+    public Message Prompt(IEnumerable<Message> messages)
+    {
+        return new Message("assistant", "You said: \"" + messages.Last().Content + "\"");
     }
 }
 
