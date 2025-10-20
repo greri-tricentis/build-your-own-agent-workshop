@@ -86,5 +86,6 @@ public class OllamaLanguageModelTests {
                         }
                         """)));
         assertThat(response).isEqualTo(new Message("assistant", "Hello there! How can I help you today? 😊"));
+
     }
 }
