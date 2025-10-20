@@ -33,18 +33,19 @@ public class Agent()
                 break;
             }
 
-            _display.Show("User: " + userInput);
-            context.Add(new Message("user", userInput));
+            var userMessage = new Message("user", userInput);
+            _display.Show(userMessage);
+            context.Add(userMessage);
 
             var answer = _model.Prompt(context);
-            _display.Show("Assistant: " + answer.Content);
+            _display.Show(answer);
             context.Add(answer);
 
             var toolResult = _tool.ParseAndExecute(answer.Content);
             if (toolResult == null) continue;
             context.Add(new Message("user", toolResult));
             var answerAfterTool = _model.Prompt(context);
-            _display.Show("Assistant: " + answerAfterTool.Content);
+            _display.Show(answerAfterTool);
         }
     }
 }
