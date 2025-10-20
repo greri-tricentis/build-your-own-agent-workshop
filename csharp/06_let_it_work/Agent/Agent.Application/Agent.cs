@@ -37,16 +37,14 @@ public class Agent()
             context.Add(new Message("user", userInput));
 
             var answer = _model.Prompt(context);
-            context.Add(answer);
             _display.Show("Assistant: " + answer.Content);
+            context.Add(answer);
 
             var toolResult = _tool.ParseAndExecute(answer.Content);
-            if (toolResult != null)
-            {
-                context.Add(new Message("user", toolResult));
-                var answerAfterTool = _model.Prompt(context);
-                _display.Show("Assistant: " + answerAfterTool.Content);
-            }
+            if (toolResult == null) continue;
+            context.Add(new Message("user", toolResult));
+            var answerAfterTool = _model.Prompt(context);
+            _display.Show("Assistant: " + answerAfterTool.Content);
         }
     }
 }
