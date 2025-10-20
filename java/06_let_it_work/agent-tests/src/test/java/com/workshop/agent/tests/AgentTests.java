@@ -18,7 +18,8 @@ public class AgentTests {
     public void shows_user_input_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
-        Agent agent = new Agent(input, model, display);
+        ToolStub tool = new ToolStub(null);
+        Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
@@ -29,7 +30,8 @@ public class AgentTests {
     public void sends_user_input_to_model() {
         UserInput input = new InputStub("Hello, Agent!", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
-        Agent agent = new Agent(input, model, display);
+        ToolStub tool = new ToolStub(null);
+        Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
@@ -47,7 +49,8 @@ public class AgentTests {
     public void shows_model_response_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
-        Agent agent = new Agent(input, model, display);
+        ToolStub tool = new ToolStub(null);
+        Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
@@ -64,7 +67,8 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
-        Agent agent = new Agent(input, model, display);
+        ToolStub tool = new ToolStub(null);
+        Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
@@ -83,7 +87,8 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
-        Agent agent = new Agent(input, model, display);
+        ToolStub tool = new ToolStub(null);
+        Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
@@ -104,6 +109,29 @@ public class AgentTests {
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you.")
         );
+    }
+
+    @Test
+    public void parses_tool_call_runs_it_and_reports_results_back_to_agent() {
+        UserInput input = new InputStub("What's the free disk space on my computer?", "");
+        LanguageModelStub model = new LanguageModelStub(List.of("<bash>df -h</bash>", "Your free disk space is: 44G"));
+        ToolStub tool = new ToolStub("Avail 44G");
+        DisplayStub display = new DisplayStub();
+        Agent agent = new Agent(input, model, tool, display);
+
+        agent.run();
+
+        assertThat(tool.executedCommands).containsExactly("<bash>df -h</bash>");
+        assertThat(model.capturedPrompts.get(1)).containsExactly(
+                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                        "For example: send <bash>ls -la</bash> to list all files. " +
+                        "Send <bash>pwd</bash> to print the working directory. " +
+                        "Only ever respond with a single bash command, and no other text."),
+                new Message("user", "What's the free disk space on my computer?"),
+                new Message("assistant", "<bash>df -h</bash>"),
+                new Message("user", "Avail 44G")
+        );
+        assertThat(display.content).endsWith("Assistant: Your free disk space is: 44G\n");
     }
 }
 
@@ -142,5 +170,39 @@ class InputStub implements UserInput {
             return "";
         }
         return messages.remove(0);
+    }
+}
+
+class ToolStub implements com.workshop.agent.application.Tool {
+    private final String result;
+    public final List<String> executedCommands = new ArrayList<>();
+
+    public ToolStub(String result) {
+        this.result = result;
+    }
+
+    @Override
+    public String parseAndExecute(String command) {
+        executedCommands.add(command);
+        return result;
+    }
+}
+
+class LanguageModelStub implements LanguageModel {
+    private final List<String> answers;
+    public final List<List<Message>> capturedPrompts = new ArrayList<>();
+
+    public LanguageModelStub(List<String> answers) {
+        this.answers = new ArrayList<>(answers);
+    }
+
+    @Override
+    public Message prompt(List<Message> messages) {
+        capturedPrompts.add(new ArrayList<>(messages));
+        String content = answers.get(0);
+        if (answers.size() > 1) {
+            answers.remove(0);
+        }
+        return new Message("assistant", content);
     }
 }

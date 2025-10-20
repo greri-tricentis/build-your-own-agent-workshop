@@ -3,15 +3,14 @@ package com.workshop.agent.tests;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.workshop.agent.application.Message;
 import com.workshop.agent.infrastructure.OllamaLanguageModel;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class OllamaLanguageModelTests {
     private WireMockServer server;
 
@@ -27,7 +26,7 @@ public class OllamaLanguageModelTests {
     }
 
     @Test
-    public void sendPromptToAndParseAnswerFromLanguageModel() {
+    public void sends_prompt_to_and_parses_answer_from_model() {
         server.stubFor(post(urlEqualTo("/v1/chat/completions"))
                 .withRequestBody(equalToJson("""
                         {
@@ -85,7 +84,7 @@ public class OllamaLanguageModelTests {
                           ]
                         }
                         """)));
-        assertThat(response).isEqualTo(new Message("user", "Hello there! How can I help you today? 😊"));
+        assertThat(response).isEqualTo(new Message("assistant", "Hello there! How can I help you today? 😊"));
 
     }
 }
