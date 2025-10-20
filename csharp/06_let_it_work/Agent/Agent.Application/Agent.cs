@@ -45,6 +45,7 @@ public class Agent()
             {
                 context.Add(new Message("user", toolResult));
                 var answerAfterTool = _model.Prompt(context);
+                _display.Show("Assistant: " + answerAfterTool.Content);
             }
         }
     }

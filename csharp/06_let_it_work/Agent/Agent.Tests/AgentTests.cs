@@ -111,12 +111,11 @@ public class AgentTests
         }));
     }
 
-
     [Test]
     public void Parses_ToolCall_RunsIt_And_Reports_Results_Back_To_Agent()
     {
         var input = new InputStub(["What's the free disk space on my computer?", ""]);
-        var model = new LanguageModelStub("<bash>df -h</bash>");
+        var model = new LanguageModelStub(["<bash>df -h</bash>", "Your free disk space is: 44G"]);
         var tool = new ToolStub("Avail 44G");
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
@@ -132,8 +131,9 @@ public class AgentTests
                           "Only ever respond with a single bash command, and no other text."),
             new("user", "What's the free disk space on my computer?"),
             new("assistant", "<bash>df -h</bash>"),
-            new("user", "Avail 44G"),
+            new("user", "Avail 44G")
         }));
+        Assert.That(display.Content, Does.EndWith("Assistant: Your free disk space is: 44G\n"));
     }
 }
 
@@ -160,14 +160,19 @@ public class RepeatingLanguageModel : ILanguageModel
     }
 }
 
-public class LanguageModelStub(string answer) : ILanguageModel
+public class LanguageModelStub(List<string> answer) : ILanguageModel
 {
     public readonly List<List<Message>> CapturedPrompts = [];
 
     public Message Prompt(IEnumerable<Message> messages)
     {
         CapturedPrompts.Add(messages.ToList());
-        return new Message("assistant", answer);
+        var content = answer.First();
+        if (answer.Count > 1)
+        {
+            answer.RemoveAt(0);
+        }
+        return new Message("assistant", content);
     }
 }
 
