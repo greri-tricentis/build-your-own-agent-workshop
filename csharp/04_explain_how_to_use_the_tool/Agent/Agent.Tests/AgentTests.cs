@@ -105,9 +105,9 @@ public class DisplayStub : IDisplay
 {
     public string Content = "";
 
-    public void Show(string text)
+    public void Show(Message message)
     {
-        Content += text + "\n";
+        Content += $"{char.ToUpper(message.Role[0]) + message.Role.Substring(1)}: {message.Content}\n";
     }
 }
 

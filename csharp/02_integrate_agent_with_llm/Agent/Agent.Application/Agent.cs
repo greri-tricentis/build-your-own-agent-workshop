@@ -16,8 +16,9 @@ public class Agent()
     public void Run()
     {
         var userInput = _input.GetInput();
-        _display.Show("User: " + userInput);
-        var message = _model.Prompt([new Message("user", userInput)]);
-        _display.Show("Assistant: " + message.Content);
+        var userMessage = new Message("user", userInput);
+        _display.Show(userMessage);
+        var answer = _model.Prompt([userMessage]);
+        _display.Show(answer);
     }
 }

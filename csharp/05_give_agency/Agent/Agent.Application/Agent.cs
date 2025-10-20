@@ -18,8 +18,8 @@ public class Agent()
         var context = new List<Message>
         {
             new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                          "For example: send <bash>ls -la</bash> to list all files. " + 
-                          "Send <bash>pwd</bash> to print the working directory. " + 
+                          "For example: send <bash>ls -la</bash> to list all files. " +
+                          "Send <bash>pwd</bash> to print the working directory. " +
                           "Only ever respond with a single bash command, and no other text.")
         };
 
@@ -30,11 +30,12 @@ public class Agent()
             {
                 break;
             }
-            _display.Show("User: " + userInput);
-            context.Add(new Message("user", userInput));
+            var userMessage = new Message("user", userInput);
+            _display.Show(userMessage);
+            context.Add(userMessage);
             var answer = _model.Prompt(context);
             context.Add(answer);
-            _display.Show("Assistant: " + answer.Content);
+            _display.Show(answer);
 
         }
     }

@@ -2,5 +2,5 @@ namespace Agent.Application;
 
 public interface IDisplay
 {
-    void Show(string text);
+    void Show(Message message);
 }
