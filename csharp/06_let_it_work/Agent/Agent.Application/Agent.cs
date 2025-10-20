@@ -43,9 +43,11 @@ public class Agent()
 
             var toolResult = _tool.ParseAndExecute(answer.Content);
             if (toolResult == null) continue;
+            
             context.Add(new Message("user", toolResult));
             var answerAfterTool = _model.Prompt(context);
             _display.Show(answerAfterTool);
+            // not yet adding answerAfterTool to context
         }
     }
 }
