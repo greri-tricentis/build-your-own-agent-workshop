@@ -32,10 +32,10 @@ public class AgentTests
         Assert.That(model.CapturedPrompts, Does.Contain(
             new List<Message>
             {
-                new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                               "For example: send <bash>ls -la</bash> to list all files. " +
                               "Send <bash>pwd</bash> to print the working directory. " +
-                              "Only ever respond with a single bash command, and no other text."),
+                              "Only ever respond with a single bash tool call, and no other text."),
                 new("user", "Hello, Agent!")
             }
         ));
@@ -92,18 +92,18 @@ public class AgentTests
         {
             new()
             {
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                                       "For example: send <bash>ls -la</bash> to list all files. " +
                                       "Send <bash>pwd</bash> to print the working directory. " +
-                                      "Only ever respond with a single bash command, and no other text."),
+                                      "Only ever respond with a single bash tool call, and no other text."),
                 new Message("user", "Hello, Agent!")
             },
             new()
             {
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                                       "For example: send <bash>ls -la</bash> to list all files. " +
                                       "Send <bash>pwd</bash> to print the working directory. " +
-                                      "Only ever respond with a single bash command, and no other text."),
+                                      "Only ever respond with a single bash tool call, and no other text."),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you."),
@@ -125,10 +125,10 @@ public class AgentTests
         Assert.That(tool.RecordedToolCalls, Does.Contain("<bash>df -h</bash>"));
         Assert.That(model.CapturedPrompts[1], Is.EquivalentTo(new List<Message>
         {
-            new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+            new("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                           "For example: send <bash>ls -la</bash> to list all files. " +
                           "Send <bash>pwd</bash> to print the working directory. " +
-                          "Only ever respond with a single bash command, and no other text."),
+                          "Only ever respond with a single bash tool call, and no other text."),
             new("user", "What's the free disk space on my computer?"),
             new("assistant", "<bash>df -h</bash>"),
             new("user", "Avail 44G")

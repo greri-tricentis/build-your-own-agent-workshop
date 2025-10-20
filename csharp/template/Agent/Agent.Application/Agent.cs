@@ -19,10 +19,10 @@ public class Agent()
     {
         var context = new List<Message>
         {
-            new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+            new("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                           "For example: send <bash>ls -la</bash> to list all files. " +
                           "Send <bash>pwd</bash> to print the working directory. " +
-                          "Only ever respond with a single bash command, and no other text.")
+                          "Only ever respond with a single bash tool call, and no other text.")
         };
 
         while (true)
@@ -49,12 +49,13 @@ public class Agent()
                     break;
                 }
 
-                context.Add(new Message("user", toolResult));
+                var toolResultMessage = new Message("user", toolResult);
+                context.Add(toolResultMessage);
+                _display.Show(toolResultMessage);
                 answer = _model.Prompt(context);
                 _display.Show(answer);
                 context.Add(answer);
             }
-            // not yet adding answerAfterTool to context
         }
     }
 }
