@@ -11,7 +11,7 @@ public class AgentTests
     public void UserInput_Shown_On_Display()
     {
         ILanguageModel model = new LanguageModelSpy();
-        var agent = new Application.Agent(_input, _display, model);
+        var agent = new Application.Agent(_input, model, _display);
 
         agent.Run();
 
@@ -22,7 +22,7 @@ public class AgentTests
     public void UserInput_Sent_To_Model()
     {
         var model = new LanguageModelSpy();
-        var agent = new Application.Agent(_input, _display, model);
+        var agent = new Application.Agent(_input, model, _display);
 
         agent.Run();
 
@@ -38,7 +38,7 @@ public class AgentTests
     public void LanguageModelResponse_Shown_On_Display()
     {
         ILanguageModel model = new LanguageModelStub("Hello, what can I do for you, today!");
-        var agent = new Application.Agent(_input, _display, model);
+        var agent = new Application.Agent(_input, model, _display);
 
         agent.Run();
 
