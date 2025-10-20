@@ -4,7 +4,7 @@ namespace Agent.Tests;
 
 public class AgentTests
 {
-    private readonly IUserInput _input = new InputStub("Hello, Agent!");
+    private readonly IUserInput _input = new InputStub(["Hello, Agent!"]);
     private readonly DisplayStub _display = new();
 
     [Test]
@@ -78,10 +78,16 @@ public class DisplayStub : IDisplay
     }
 }
 
-public class InputStub(string message) : IUserInput
+public class InputStub(List<string> message) : IUserInput
 {
     public string GetInput()
     {
-        return message;
+        var first = message.First();
+        if (message.Count > 1)
+        {
+            message.RemoveAt(0);
+        }
+
+        return first;
     }
 }
