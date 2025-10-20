@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -182,9 +183,9 @@ class ToolStub implements com.workshop.agent.application.Tool {
     }
 
     @Override
-    public String parseAndExecute(String command) {
+    public Optional<String> parseAndExecute(String command) {
         executedCommands.add(command);
-        return result;
+        return Optional.ofNullable(result);
     }
 }
 

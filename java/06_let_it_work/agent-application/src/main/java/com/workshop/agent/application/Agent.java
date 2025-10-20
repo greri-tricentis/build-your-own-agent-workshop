@@ -2,6 +2,7 @@ package com.workshop.agent.application;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Agent {
     private final UserInput input;
@@ -36,10 +37,10 @@ public class Agent {
             display.show(answer);
             context.add(answer);
 
-            String toolResult = tool.parseAndExecute(answer.content());
-            if (toolResult == null) continue;
+            Optional<String> toolResult = tool.parseAndExecute(answer.content());
+            if (toolResult.isEmpty()) continue;
 
-            context.add(new Message("user", toolResult));
+            context.add(new Message("user", toolResult.get()));
             Message answerAfterTool = model.prompt(context);
             display.show(answerAfterTool);
             // not yet adding answerAfterTool to context

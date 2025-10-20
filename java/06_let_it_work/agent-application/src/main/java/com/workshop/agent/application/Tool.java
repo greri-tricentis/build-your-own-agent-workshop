@@ -1,5 +1,7 @@
 package com.workshop.agent.application;
 
+import java.util.Optional;
+
 public interface Tool {
-    String parseAndExecute(String command);
+    Optional<String> parseAndExecute(String command);
 }
