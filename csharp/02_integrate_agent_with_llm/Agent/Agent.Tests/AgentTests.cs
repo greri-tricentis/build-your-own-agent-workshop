@@ -10,7 +10,7 @@ public class AgentTests
     [Test]
     public void UserInput_Shown_On_Display()
     {
-        ILanguageModel model = new LanguageModelSpy();
+        ILanguageModel model = new RepeatingLanguageModel();
         var agent = new Application.Agent(_input, model, _display);
 
         agent.Run();
@@ -21,12 +21,13 @@ public class AgentTests
     [Test]
     public void UserInput_Sent_To_Model()
     {
-        var model = new LanguageModelSpy();
+        var model = new RepeatingLanguageModel();
         var agent = new Application.Agent(_input, model, _display);
 
         agent.Run();
 
-        Assert.That(model.CapturedPrompts, Is.EqualTo(
+        Assert.That(model.CapturedPrompts, Has.Count.EqualTo(1));
+        Assert.That(model.CapturedPrompts[0], Is.EquivalentTo(
             new List<Message>
             {
                 new("user", "Hello, Agent!")
@@ -37,34 +38,27 @@ public class AgentTests
     [Test]
     public void LanguageModelResponse_Shown_On_Display()
     {
-        ILanguageModel model = new LanguageModelStub("Hello, what can I do for you, today!");
+        ILanguageModel model = new RepeatingLanguageModel();
         var agent = new Application.Agent(_input, model, _display);
 
         agent.Run();
 
         Assert.That(_display.Content, Is.EqualTo(
             "User: Hello, Agent!\n" +
-            "Assistant: Hello, what can I do for you, today!\n"
+            "Assistant: You said: \"Hello, Agent!\"\n"
         ));
     }
 }
 
-public class LanguageModelStub(string message) : ILanguageModel
+public class RepeatingLanguageModel : ILanguageModel
 {
-    public Message Prompt(IEnumerable<Message> messages)
-    {
-        return new Message("assistant", message);
-    }
-}
-
-public class LanguageModelSpy : ILanguageModel
-{
-    public readonly List<Message> CapturedPrompts = [];
+    public readonly List<List<Message>> CapturedPrompts = [];
 
     public Message Prompt(IEnumerable<Message> messages)
     {
-        CapturedPrompts.AddRange(messages);
-        return new Message("assistant", "Stub response");
+        var list = messages.ToList();
+        CapturedPrompts.Add(list);
+        return new Message("assistant", "You said: \"" + list.Last().Content + "\"");
     }
 }
 

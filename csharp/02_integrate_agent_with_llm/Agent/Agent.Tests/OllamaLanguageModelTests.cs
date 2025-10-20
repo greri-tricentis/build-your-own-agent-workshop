@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Agent.Application;
 using Agent.Infrastructure;
+using NUnit.Framework.Constraints;
 using WireMock.Logging;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -95,4 +96,17 @@ public class OllamaLanguageModelTests
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+}
+
+public class OllamaLanguageModel
+{
+    public OllamaLanguageModel(string serverUrl, string model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Message Prompt(List<Message> messages)
+    {
+        throw new NotImplementedException();
+    }
 }
