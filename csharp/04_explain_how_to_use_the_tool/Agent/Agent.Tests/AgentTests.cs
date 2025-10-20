@@ -95,8 +95,9 @@ public class RepeatingLanguageModel : ILanguageModel
 
     public Message Prompt(IEnumerable<Message> messages)
     {
-        CapturedPrompts.Add(messages.ToList());
-        return new Message("assistant", "You said: \"" + messages.Last().Content + "\"");
+        var list = messages.ToList();
+        CapturedPrompts.Add(list);
+        return new Message("assistant", "You said: \"" + list.Last().Content + "\"");
     }
 }
 
