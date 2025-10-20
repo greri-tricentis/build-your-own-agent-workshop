@@ -1,4 +1,5 @@
 ﻿using Agent.Application;
+using DevLab.JmesPath.Functions;
 
 namespace Agent.Tests;
 
@@ -15,7 +16,7 @@ public class AgentTests
         agent.Run();
 
         var textOnDisplay = ((DisplayStub)display).Content;
-        Assert.That(textOnDisplay, Is.EqualTo("User: Hello, Agent!\n"));
+        Assert.That(textOnDisplay, Does.StartWith("User: Hello, Agent!\n"));
     }
 
     [Test]
@@ -57,7 +58,6 @@ public class AgentTests
 
 public class LanguageModelStub(string message) : ILanguageModel
 {
-
     public Message Prompt(IEnumerable<Message> messages)
     {
         return new Message("assistant", message);
@@ -71,7 +71,7 @@ public class LanguageModelSpy : ILanguageModel
     public Message Prompt(IEnumerable<Message> messages)
     {
         CapturedPrompts.AddRange(messages);
-        return null;
+        return new Message("assistant", "Stub response");
     }
 }
 
