@@ -1,7 +1,6 @@
 package com.workshop.agent.tests;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.workshop.agent.application.LanguageModel;
 import com.workshop.agent.application.Message;
 import com.workshop.agent.infrastructure.OllamaLanguageModel;
 import org.junit.jupiter.api.*;

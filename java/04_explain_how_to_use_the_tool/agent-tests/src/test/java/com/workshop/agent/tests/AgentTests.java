@@ -12,11 +12,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AgentTests {
-    private final UserInput input = new InputStub("Hello, Agent!");
     private final DisplayStub display = new DisplayStub();
 
     @Test
     public void shows_user_input_on_display() {
+        UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
         Agent agent = new Agent(input, model, display);
 
@@ -27,6 +27,7 @@ public class AgentTests {
 
     @Test
     public void sends_user_input_to_model() {
+        UserInput input = new InputStub("Hello, Agent!", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         Agent agent = new Agent(input, model, display);
 
@@ -40,6 +41,7 @@ public class AgentTests {
 
     @Test
     public void shows_model_response_on_display() {
+        UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
         Agent agent = new Agent(input, model, display);
 
@@ -50,6 +52,45 @@ public class AgentTests {
                         User: Hello, Agent!
                         Assistant: You said: "Hello, Agent!"
                         """
+        );
+    }
+
+    @Test
+    public void displays_back_and_forth_chat() {
+        UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
+        RepeatingLanguageModel model = new RepeatingLanguageModel();
+        DisplayStub display = new DisplayStub();
+        Agent agent = new Agent(input, model, display);
+
+        agent.run();
+
+        assertThat(display.content).isEqualTo(
+                """
+                        User: Hello, Agent!
+                        Assistant: You said: "Hello, Agent!"
+                        User: I have another Message for you.
+                        Assistant: You said: "I have another Message for you."
+                        """
+        );
+    }
+
+    @Test
+    public void sends_whole_context_to_model() {
+        UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
+        RepeatingLanguageModel model = new RepeatingLanguageModel();
+        DisplayStub display = new DisplayStub();
+        Agent agent = new Agent(input, model, display);
+
+        agent.run();
+
+        assertThat(model.capturedPrompts).hasSize(2);
+        assertThat(model.capturedPrompts.get(0)).containsExactly(
+                new Message("user", "Hello, Agent!")
+        );
+        assertThat(model.capturedPrompts.get(1)).containsExactly(
+                new Message("user", "Hello, Agent!"),
+                new Message("assistant", "You said: \"Hello, Agent!\""),
+                new Message("user", "I have another Message for you.")
         );
     }
 }
@@ -77,14 +118,17 @@ class DisplayStub implements Display {
 }
 
 class InputStub implements UserInput {
-    private final String message;
+    private final List<String> messages;
 
-    public InputStub(String message) {
-        this.message = message;
+    public InputStub(String... messages) {
+        this.messages = new ArrayList<>(List.of(messages));
     }
 
     @Override
     public String getInput() {
-        return message;
+        if (messages.isEmpty()) {
+            return "";
+        }
+        return messages.remove(0);
     }
 }
