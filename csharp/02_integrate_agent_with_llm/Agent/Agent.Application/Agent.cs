@@ -5,7 +5,7 @@ public class Agent()
     private readonly IUserInput _input;
     private readonly IDisplay _display;
 
-    public Agent(IUserInput input, IDisplay display) : this()
+    public Agent(IUserInput input, IDisplay display, ILanguageModel model) : this()
     {
         _input = input;
         _display = display;
