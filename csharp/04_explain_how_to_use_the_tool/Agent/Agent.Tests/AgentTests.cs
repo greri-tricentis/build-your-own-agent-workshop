@@ -4,7 +4,6 @@ namespace Agent.Tests;
 
 public class AgentTests
 {
-    private readonly IUserInput _input = new InputStub(["Hello, Agent!"]);
     private DisplayStub _display = new();
     
     [SetUp]
@@ -15,36 +14,42 @@ public class AgentTests
     [Test]
     public void UserInput_Shown_On_Display()
     {
-        ILanguageModel model = new LanguageModelSpy();
-        var agent = new Application.Agent(_input, model, _display);
+        var input = new InputStub(["Hello, Agent!", ""]);
+        var model = new LanguageModelSpy();
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, display);
 
         agent.Run();
 
-        Assert.That(_display.Content, Does.StartWith("User: Hello, Agent!\n"));
+        Assert.That(display.Content, Does.StartWith("User: Hello, Agent!\n"));
     }
 
     [Test]
     public void UserInput_Sent_To_Model()
     {
+        var input = new InputStub(["Hello, Agent!", ""]);
         var model = new LanguageModelSpy();
-        var agent = new Application.Agent(_input, model, _display);
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, display);
 
         agent.Run();
 
         Assert.That(model.CapturedPrompts, Does.Contain(
-                new Message("user", "Hello, Agent!")
+                new List<Message> {new("user", "Hello, Agent!")}
         ));
     }
 
     [Test]
     public void LanguageModelResponse_Shown_On_Display()
     {
-        ILanguageModel model = new LanguageModelStub("Hello, what can I do for you, today!");
-        var agent = new Application.Agent(_input, model, _display);
+        var input = new InputStub(["Hello, Agent!", ""]);
+        var model = new LanguageModelStub("Hello, what can I do for you, today!");
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, display);
 
         agent.Run();
 
-        Assert.That(_display.Content, Does.StartWith(
+        Assert.That(display.Content, Does.StartWith(
             "User: Hello, Agent!\n" +
             "Assistant: Hello, what can I do for you, today!\n"
         ));
@@ -53,18 +58,41 @@ public class AgentTests
     [Test]
     public void Displays_Back_And_Forth_Chat()
     {
-        InputStub input = new(["Hello, Agent!", "I have another Message for you."]);
-        ILanguageModel model = new RepeatingLanguageModel();
-        var agent = new Application.Agent(input, model, _display);
+        var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
+        var model = new RepeatingLanguageModel();
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, display);
 
         agent.Run();
 
-        Assert.That(_display.Content, Is.EqualTo(
+        Assert.That(display.Content, Is.EqualTo(
             "User: Hello, Agent!\n" +
             "Assistant: You said: \"Hello, Agent!\"\n" +
             "User: I have another Message for you.\n" +
             "Assistant: You said: \"I have another Message for you.\"\n"
         ));
+    }
+    
+    [Test]
+    public void Sends_Whole_Context_To_Model()
+    {
+        var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
+        var model = new LanguageModelSpy();
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, display);
+
+        agent.Run();
+
+        Assert.That(model.CapturedPrompts, Is.EqualTo(new List<List<Message>>
+        {
+            new() { new Message("user", "Hello, Agent!") },
+            new()
+            {
+                new Message("user", "Hello, Agent!"),
+                new Message("assistant", "Stub response"),
+                new Message("user", "I have another Message for you."),
+            }
+        }));
     }
 }
 
@@ -86,11 +114,11 @@ public class LanguageModelStub(string message) : ILanguageModel
 
 public class LanguageModelSpy : ILanguageModel
 {
-    public readonly List<Message> CapturedPrompts = [];
+    public readonly List<List<Message>> CapturedPrompts = [];
 
     public Message Prompt(IEnumerable<Message> messages)
     {
-        CapturedPrompts.AddRange(messages);
+        CapturedPrompts.Add(messages.ToList());
         return new Message("assistant", "Stub response");
     }
 }

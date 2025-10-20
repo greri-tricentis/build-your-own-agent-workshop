@@ -15,15 +15,21 @@ public class Agent()
 
     public void Run()
     {
-        var userInput = _input.GetInput();
-        _display.Show("User: " + userInput);
-        var message = _model.Prompt([new Message("user", userInput)]);
-        _display.Show("Assistant: " + message.Content);
-        
-        var userInput2 = _input.GetInput();
-        _display.Show("User: " + userInput2);
-        var message2 = _model.Prompt([new Message("user", userInput2)]);
-        _display.Show("Assistant: " + message2.Content);
-        
+        var context = new List<Message>();
+
+        while (true)
+        {
+            var userInput = _input.GetInput();
+            if (string.IsNullOrWhiteSpace(userInput))
+            {
+                break;
+            }
+            _display.Show("User: " + userInput);
+            context.Add(new Message("user", userInput));
+            var answer = _model.Prompt(context);
+            context.Add(answer);
+            _display.Show("Assistant: " + answer.Content);
+
+        }
     }
 }
