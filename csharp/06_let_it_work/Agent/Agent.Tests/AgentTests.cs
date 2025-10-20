@@ -105,6 +105,40 @@ public class AgentTests
             }
         }));
     }
+    
+    
+    [Test]
+    public void Parses_ToolCall_RunsIt_And_Reports_Results_Back_To_Agent()
+    {
+        var input = new InputStub(["What's the free disk space on my computer?", ""]);
+        var model = new RepeatingLanguageModel();
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, display);
+
+        agent.Run();
+
+        Assert.That(model.CapturedPrompts, Is.EqualTo(new List<List<Message>>
+        {
+            new()
+            {
+                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                                      "For example: send <bash>ls -la</bash> to list all files. " +
+                                      "Send <bash>pwd</bash> to print the working directory. " +
+                                      "Only ever respond with a single bash command, and no other text."),
+                new Message("user", "What's the free disk space on my computer?")
+            },
+            new()
+            {
+                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                                      "For example: send <bash>ls -la</bash> to list all files. " +
+                                      "Send <bash>pwd</bash> to print the working directory. " +
+                                      "Only ever respond with a single bash command, and no other text."),
+                new Message("user", "What's the free disk space on my computer?"),
+                new Message("assistant", "<bash>df -h</bash>"),
+                new Message("user", "Avail 44G"),
+            }
+        }));
+    }
 }
 
 public class RepeatingLanguageModel : ILanguageModel
