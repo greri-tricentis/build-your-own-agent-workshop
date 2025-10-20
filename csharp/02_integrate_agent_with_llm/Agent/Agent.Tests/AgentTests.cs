@@ -1,36 +1,32 @@
 ﻿using Agent.Application;
-using DevLab.JmesPath.Functions;
 
 namespace Agent.Tests;
 
 public class AgentTests
 {
+    private readonly IUserInput _input = new InputStub("Hello, Agent!");
+    private readonly DisplayStub _display = new();
+
     [Test]
     public void UserInput_Shown_On_Display()
     {
-        IUserInput input = new InputStub("Hello, Agent!");
-        IDisplay display = new DisplayStub();
         ILanguageModel model = new LanguageModelSpy();
-        var agent = new Application.Agent(input, display, model);
+        var agent = new Application.Agent(_input, _display, model);
 
         agent.Run();
 
-        var textOnDisplay = ((DisplayStub)display).Content;
-        Assert.That(textOnDisplay, Does.StartWith("User: Hello, Agent!\n"));
+        Assert.That(_display.Content, Does.StartWith("User: Hello, Agent!\n"));
     }
 
     [Test]
     public void UserInput_Sent_To_Model()
     {
-        IUserInput input = new InputStub("Hello, Agent!");
-        IDisplay display = new DisplayStub();
-        ILanguageModel model = new LanguageModelSpy();
-        var agent = new Application.Agent(input, display, model);
+        var model = new LanguageModelSpy();
+        var agent = new Application.Agent(_input, _display, model);
 
         agent.Run();
 
-        List<Message> prompts = ((LanguageModelSpy)model).CapturedPrompts;
-        Assert.That(prompts, Is.EqualTo(
+        Assert.That(model.CapturedPrompts, Is.EqualTo(
             new List<Message>
             {
                 new("user", "Hello, Agent!")
@@ -41,15 +37,12 @@ public class AgentTests
     [Test]
     public void LanguageModelResponse_Shown_On_Display()
     {
-        IUserInput input = new InputStub("Hello, Agent!");
-        IDisplay display = new DisplayStub();
         ILanguageModel model = new LanguageModelStub("Hello, what can I do for you, today!");
-        var agent = new Application.Agent(input, display, model);
+        var agent = new Application.Agent(_input, _display, model);
 
         agent.Run();
 
-        var textOnDisplay = ((DisplayStub)display).Content;
-        Assert.That(textOnDisplay, Is.EqualTo(
+        Assert.That(_display.Content, Is.EqualTo(
             "User: Hello, Agent!\n" +
             "Assistant: Hello, what can I do for you, today!\n"
         ));
