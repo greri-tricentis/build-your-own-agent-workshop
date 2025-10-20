@@ -135,6 +135,29 @@ public class AgentTests
         }));
         Assert.That(display.Content, Does.EndWith("Assistant: Your free disk space is: 44G\n"));
     }
+
+    [Test]
+    public void Agent_Can_Execute_Multiple_Consecutive_ToolCalls()
+    {
+        var input = new InputStub(["List files and show current directory", ""]);
+        var model = new LanguageModelStub([
+            "<bash>ls</bash>", "<bash>pwd</bash>", "I found files and the directory is /home/user"
+        ]);
+        var tool = new ToolStub("file1.txt file2.txt");
+        var display = new DisplayStub();
+        var agent = new Application.Agent(input, model, tool, display);
+
+        agent.Run();
+
+        Assert.That(tool.ExecutedCommands, Is.EquivalentTo(new List<string>
+        {
+            "<bash>ls</bash>",
+            "<bash>pwd</bash>"
+        }));
+        Assert.That(model.CapturedPrompts.Count, Is.EqualTo(3));
+        Assert.That(model.CapturedPrompts[2], Does.Contain(new Message("assistant", "<bash>pwd</bash>")));
+        Assert.That(display.Content, Does.EndWith("Assistant: I found files and the directory is /home/user\n"));
+    }
 }
 
 public class ToolStub(string? result) : ITool
@@ -172,6 +195,7 @@ public class LanguageModelStub(List<string> answer) : ILanguageModel
         {
             answer.RemoveAt(0);
         }
+
         return new Message("assistant", content);
     }
 }
