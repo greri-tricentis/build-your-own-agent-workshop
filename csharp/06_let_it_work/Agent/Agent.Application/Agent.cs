@@ -5,12 +5,14 @@ public class Agent()
     private readonly IUserInput _input;
     private readonly IDisplay _display;
     private readonly ILanguageModel _model;
+    private readonly ITool _tool;
 
-    public Agent(IUserInput input, ILanguageModel model, IDisplay display) : this()
+    public Agent(IUserInput input, ILanguageModel model, ITool tool, IDisplay display) : this()
     {
         _input = input;
         _display = display;
         _model = model;
+        _tool = tool;
     }
 
     public void Run()
@@ -18,8 +20,8 @@ public class Agent()
         var context = new List<Message>
         {
             new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                          "For example: send <bash>ls -la</bash> to list all files. " + 
-                          "Send <bash>pwd</bash> to print the working directory. " + 
+                          "For example: send <bash>ls -la</bash> to list all files. " +
+                          "Send <bash>pwd</bash> to print the working directory. " +
                           "Only ever respond with a single bash command, and no other text.")
         };
 
@@ -30,12 +32,20 @@ public class Agent()
             {
                 break;
             }
+
             _display.Show("User: " + userInput);
             context.Add(new Message("user", userInput));
+
             var answer = _model.Prompt(context);
             context.Add(answer);
             _display.Show("Assistant: " + answer.Content);
 
+            var toolResult = _tool.ParseAndExecute(answer.Content);
+            if (toolResult != null)
+            {
+                context.Add(new Message("user", toolResult));
+                var answerAfterTool = _model.Prompt(context);
+            }
         }
     }
 }
