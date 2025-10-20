@@ -28,7 +28,14 @@ public class AgentTests
         agent.Run();
 
         Assert.That(model.CapturedPrompts, Does.Contain(
-                new List<Message> {new("user", "Hello, Agent!")}
+            new List<Message>
+            {
+                new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                              "For example: send <bash>ls -la</bash> to list all files. " +
+                              "Send <bash>pwd</bash> to print the working directory. " +
+                              "Only ever respond with a single bash command, and no other text."),
+                new("user", "Hello, Agent!")
+            }
         ));
     }
 
@@ -47,7 +54,7 @@ public class AgentTests
             "Assistant: You said: \"Hello, Agent!\"\n"
         ));
     }
-    
+
     [Test]
     public void Displays_Back_And_Forth_Chat()
     {
@@ -65,7 +72,7 @@ public class AgentTests
             "Assistant: You said: \"I have another Message for you.\"\n"
         ));
     }
-    
+
     [Test]
     public void Sends_Whole_Context_To_Model()
     {
@@ -78,9 +85,20 @@ public class AgentTests
 
         Assert.That(model.CapturedPrompts, Is.EqualTo(new List<List<Message>>
         {
-            new() { new Message("user", "Hello, Agent!") },
             new()
             {
+                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                                      "For example: send <bash>ls -la</bash> to list all files. " +
+                                      "Send <bash>pwd</bash> to print the working directory. " +
+                                      "Only ever respond with a single bash command, and no other text."),
+                new Message("user", "Hello, Agent!")
+            },
+            new()
+            {
+                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                                      "For example: send <bash>ls -la</bash> to list all files. " +
+                                      "Send <bash>pwd</bash> to print the working directory. " +
+                                      "Only ever respond with a single bash command, and no other text."),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you."),
