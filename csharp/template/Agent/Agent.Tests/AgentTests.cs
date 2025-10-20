@@ -9,7 +9,7 @@ public class AgentTests
     {
         var input = new InputStub(["Hello, Agent!", ""]);
         var model = new RepeatingLanguageModel();
-        var tool = new ToolStub(null);
+        var tool = new ToolStub();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
@@ -23,7 +23,7 @@ public class AgentTests
     {
         var input = new InputStub(["Hello, Agent!", ""]);
         var model = new RepeatingLanguageModel();
-        var tool = new ToolStub(null);
+        var tool = new ToolStub();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
@@ -46,7 +46,7 @@ public class AgentTests
     {
         var input = new InputStub(["Hello, Agent!", ""]);
         var model = new RepeatingLanguageModel();
-        var tool = new ToolStub(null);
+        var tool = new ToolStub();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
@@ -63,7 +63,7 @@ public class AgentTests
     {
         var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
         var model = new RepeatingLanguageModel();
-        var tool = new ToolStub(null);
+        var tool = new ToolStub();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
@@ -82,7 +82,7 @@ public class AgentTests
     {
         var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
         var model = new RepeatingLanguageModel();
-        var tool = new ToolStub(null);
+        var tool = new ToolStub();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
@@ -116,13 +116,13 @@ public class AgentTests
     {
         var input = new InputStub(["What's the free disk space on my computer?", ""]);
         var model = new LanguageModelStub(["<bash>df -h</bash>", "Your free disk space is: 44G"]);
-        var tool = new ToolStub("Avail 44G");
+        var tool = new ToolStub(["Avail 44G", null]);
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
         agent.Run();
 
-        Assert.That(tool.ExecutedCommands, Is.EquivalentTo(new List<string> { "<bash>df -h</bash>" }));
+        Assert.That(tool.RecordedToolCalls, Does.Contain("<bash>df -h</bash>"));
         Assert.That(model.CapturedPrompts[1], Is.EquivalentTo(new List<Message>
         {
             new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
@@ -141,18 +141,21 @@ public class AgentTests
     {
         var input = new InputStub(["List files and show current directory", ""]);
         var model = new LanguageModelStub([
-            "<bash>ls</bash>", "<bash>pwd</bash>", "I found files and the directory is /home/user"
+            "<bash>ls</bash>",
+            "<bash>pwd</bash>",
+            "I found files and the directory is /home/user"
         ]);
-        var tool = new ToolStub("file1.txt file2.txt");
+        var tool = new ToolStub(["file1.txt file2.txt", "/home/user", null]);
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, tool, display);
 
         agent.Run();
 
-        Assert.That(tool.ExecutedCommands, Is.EquivalentTo(new List<string>
+        Assert.That(tool.RecordedToolCalls, Is.EquivalentTo(new List<string>
         {
             "<bash>ls</bash>",
-            "<bash>pwd</bash>"
+            "<bash>pwd</bash>",
+            "I found files and the directory is /home/user"
         }));
         Assert.That(model.CapturedPrompts.Count, Is.EqualTo(3));
         Assert.That(model.CapturedPrompts[2], Does.Contain(new Message("assistant", "<bash>pwd</bash>")));
@@ -160,14 +163,24 @@ public class AgentTests
     }
 }
 
-public class ToolStub(string? result) : ITool
+public class ToolStub(List<string?> result) : ITool
 {
-    public readonly List<string> ExecutedCommands = [];
+    public readonly List<string> RecordedToolCalls = [];
+
+    public ToolStub() : this([null])
+    {
+    }
 
     public string? ParseAndExecute(string command)
     {
-        ExecutedCommands.Add(command);
-        return result;
+        RecordedToolCalls.Add(command);
+        var currentResult = result.First();
+        if (result.Count > 1)
+        {
+            result.RemoveAt(0);
+        }
+
+        return currentResult;
     }
 }
 

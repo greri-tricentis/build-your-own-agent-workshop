@@ -41,12 +41,19 @@ public class Agent()
             _display.Show(answer);
             context.Add(answer);
 
-            var toolResult = _tool.ParseAndExecute(answer.Content);
-            if (toolResult == null) continue;
-            
-            context.Add(new Message("user", toolResult));
-            var answerAfterTool = _model.Prompt(context);
-            _display.Show(answerAfterTool);
+            while (true)
+            {
+                var toolResult = _tool.ParseAndExecute(answer.Content);
+                if (toolResult == null)
+                {
+                    break;
+                }
+
+                context.Add(new Message("user", toolResult));
+                answer = _model.Prompt(context);
+                _display.Show(answer);
+                context.Add(answer);
+            }
             // not yet adding answerAfterTool to context
         }
     }
