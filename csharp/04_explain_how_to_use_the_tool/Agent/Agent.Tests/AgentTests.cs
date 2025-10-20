@@ -4,13 +4,6 @@ namespace Agent.Tests;
 
 public class AgentTests
 {
-    private DisplayStub _display = new();
-    
-    [SetUp]
-    public void InitializeDisplay() {
-        _display = new DisplayStub();
-    }
-
     [Test]
     public void UserInput_Shown_On_Display()
     {
@@ -89,7 +82,7 @@ public class AgentTests
             new()
             {
                 new Message("user", "Hello, Agent!"),
-                new Message("assistant", "Stub response"),
+                new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you."),
             }
         }));
@@ -119,7 +112,7 @@ public class LanguageModelSpy : ILanguageModel
     public Message Prompt(IEnumerable<Message> messages)
     {
         CapturedPrompts.Add(messages.ToList());
-        return new Message("assistant", "Stub response");
+        return new Message("assistant", "You said: \"" + messages.Last().Content + "\"");
     }
 }
 
