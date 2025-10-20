@@ -6,7 +6,7 @@ describe("Agent", () => {
   let textOnDisplay = "";
 
   it("displays message from user, sends user input to llm and displays its answer", () => {
-    agent(inputStub, displaySpy, languageModelStub);
+    agent(inputStub, languageModelStub, displaySpy);
     expect(textOnDisplay).toBe(
       "User: Hello, Agent!\n" +
       "Agent: Hi there! Yes, you are right!\n"
