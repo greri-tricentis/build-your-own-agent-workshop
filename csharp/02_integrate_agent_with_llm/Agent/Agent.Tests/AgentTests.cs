@@ -32,7 +32,7 @@ public class AgentTests
         Assert.That(prompts, Is.EqualTo(
             new List<Message>
             {
-                new("user", " Hello, Agent!")
+                new("user", "Hello, Agent!")
             }
         ));
     }
