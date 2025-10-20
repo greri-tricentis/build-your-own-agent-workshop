@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Agent.Application;
+using Agent.Infrastructure;
 using WireMock.Logging;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -67,22 +69,22 @@ public class OllamaLanguageModelTests
                             }
                           }
                           """));
-        // var languageModel = new OllamaLanguageModel(_server.Url!, "gemma3:1b");
-        // var message = new Message("user", "Hello!");
-        //
-        // var response = languageModel.Prompt([message]);
-        //
-        // Assert.That(AllPostRequestsForPath("/v1/chat/completions"), Has.Count.EqualTo(1));
-        // Assert.That(FirstActualPostRequestFor("/v1/chat/completions"), Is.EqualTo(new ChatRequest("gemma3:1b", [message])));
-        // Assert.That(response, Is.EqualTo(new Message("assistant", "Hello there! How can I help you today? 😊")));
+        var languageModel = new OllamaLanguageModel(_server.Url!, "gemma3:1b");
+        var message = new Message("user", "Hello!");
+        
+        var response = languageModel.Prompt([message]);
+        
+        Assert.That(AllPostRequestsForPath("/v1/chat/completions"), Has.Count.EqualTo(1));
+        Assert.That(FirstActualPostRequestFor("/v1/chat/completions"), Is.EqualTo(new ChatRequest("gemma3:1b", [message])));
+        Assert.That(response, Is.EqualTo(new Message("assistant", "Hello there! How can I help you today? 😊")));
     }
 
-    // private ChatRequest? FirstActualPostRequestFor(string path)
-    // {
-    //     var requestMessageBody = AllPostRequestsForPath(path).Single().RequestMessage.Body!;
-    //     var actualRequest = JsonSerializer.Deserialize<ChatRequest>(requestMessageBody, JsonSerializerOptions);
-    //     return actualRequest;
-    // }
+    private ChatRequest? FirstActualPostRequestFor(string path)
+    {
+        var requestMessageBody = AllPostRequestsForPath(path).Single().RequestMessage.Body!;
+        var actualRequest = JsonSerializer.Deserialize<ChatRequest>(requestMessageBody, JsonSerializerOptions);
+        return actualRequest;
+    }
 
     private IReadOnlyList<ILogEntry> AllPostRequestsForPath(string path)
     {
