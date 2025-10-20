@@ -98,14 +98,14 @@ public class OllamaLanguageModelTests
     };
 }
 
-public class OllamaLanguageModel
+public class OllamaLanguageModel : ILanguageModel
 {
     public OllamaLanguageModel(string serverUrl, string model)
     {
         throw new NotImplementedException();
     }
 
-    public Message Prompt(List<Message> messages)
+    public Message Prompt(IEnumerable<Message> messages)
     {
         throw new NotImplementedException();
     }
