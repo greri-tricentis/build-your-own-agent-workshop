@@ -5,7 +5,7 @@ namespace Agent.Tests;
 public class AgentTests
 {
     [Test]
-    public void UserInput_Appears_On_Display()
+    public void UserInput_Shown_On_Display()
     {
         IUserInput input = new InputStub("Hello, Agent!");
         IDisplay display = new DisplayStub();
@@ -35,6 +35,32 @@ public class AgentTests
                 new("user", "Hello, Agent!")
             }
         ));
+    }
+
+    [Test]
+    public void LanguageModelResponse_Shown_On_Display()
+    {
+        IUserInput input = new InputStub("Hello, Agent!");
+        IDisplay display = new DisplayStub();
+        ILanguageModel model = new LanguageModelStub("Hello, what can I do for you, today!");
+        var agent = new Application.Agent(input, display, model);
+
+        agent.Run();
+
+        var textOnDisplay = ((DisplayStub)display).Content;
+        Assert.That(textOnDisplay, Is.EqualTo(
+            "User: Hello, Agent!\n" +
+            "Assistant: Hello, what can I do for you, today!\n"
+        ));
+    }
+}
+
+public class LanguageModelStub(string message) : ILanguageModel
+{
+
+    public Message Prompt(IEnumerable<Message> messages)
+    {
+        return new Message("assistant", message);
     }
 }
 
