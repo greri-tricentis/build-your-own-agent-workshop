@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,7 +19,7 @@ public class AgentTests {
     public void shows_user_input_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
-        ToolStub tool = new ToolStub(null);
+        ToolStub tool = new ToolStub();
         Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
@@ -30,17 +31,17 @@ public class AgentTests {
     public void sends_user_input_to_model() {
         UserInput input = new InputStub("Hello, Agent!", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
-        ToolStub tool = new ToolStub(null);
+        ToolStub tool = new ToolStub();
         Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
         assertThat(model.capturedPrompts).hasSize(1);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                         "For example: send <bash>ls -la</bash> to list all files. " +
                         "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                        "Only ever respond with a single bash tool call, and no other text."),
                 new Message("user", "Hello, Agent!")
         );
     }
@@ -49,7 +50,7 @@ public class AgentTests {
     public void shows_model_response_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
-        ToolStub tool = new ToolStub(null);
+        ToolStub tool = new ToolStub();
         Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
@@ -67,7 +68,7 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
-        ToolStub tool = new ToolStub(null);
+        ToolStub tool = new ToolStub();
         Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
@@ -87,24 +88,24 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
-        ToolStub tool = new ToolStub(null);
+        ToolStub tool = new ToolStub();
         Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
         assertThat(model.capturedPrompts).hasSize(2);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                         "For example: send <bash>ls -la</bash> to list all files. " +
                         "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                        "Only ever respond with a single bash tool call, and no other text."),
                 new Message("user", "Hello, Agent!")
         );
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                         "For example: send <bash>ls -la</bash> to list all files. " +
                         "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                        "Only ever respond with a single bash tool call, and no other text."),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you.")
@@ -115,23 +116,55 @@ public class AgentTests {
     public void parses_tool_call_runs_it_and_reports_results_back_to_agent() {
         UserInput input = new InputStub("What's the free disk space on my computer?", "");
         LanguageModelStub model = new LanguageModelStub(List.of("<bash>df -h</bash>", "Your free disk space is: 44G"));
-        ToolStub tool = new ToolStub("Avail 44G");
+        ToolStub tool = new ToolStub(List.of(
+                Optional.of("Avail 44G"),
+                Optional.empty()
+        ));
         DisplayStub display = new DisplayStub();
         Agent agent = new Agent(input, model, tool, display);
 
         agent.run();
 
-        assertThat(tool.executedCommands).containsExactly("<bash>df -h</bash>");
+        assertThat(tool.requestedToolCalls).containsExactly("<bash>df -h</bash>", "Your free disk space is: 44G");
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
                         "For example: send <bash>ls -la</bash> to list all files. " +
                         "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                        "Only ever respond with a single bash tool call, and no other text."),
                 new Message("user", "What's the free disk space on my computer?"),
                 new Message("assistant", "<bash>df -h</bash>"),
                 new Message("user", "Avail 44G")
         );
         assertThat(display.content).endsWith("Assistant: Your free disk space is: 44G\n");
+    }
+
+    @Test
+    public void agent_can_execute_multiple_consecutive_tool_calls() {
+        UserInput input = new InputStub("List files and show current directory", "");
+        LanguageModelStub model = new LanguageModelStub(List.of(
+                "<bash>ls</bash>",
+                "<bash>pwd</bash>",
+                "I found files and the directory is /home/user"
+        ));
+        List<Optional<String>> toolResults = List.of(
+                Optional.of("file1.txt file2.txt"),
+                Optional.of("/home/user"),
+                Optional.empty()
+        );
+        ToolStub tool = new ToolStub(toolResults);
+        DisplayStub display = new DisplayStub();
+        Agent agent = new Agent(input, model, tool, display);
+
+        agent.run();
+
+        assertThat(tool.requestedToolCalls).containsExactly(
+                "<bash>ls</bash>",
+                "<bash>pwd</bash>",
+                "I found files and the directory is /home/user"
+        );
+        assertThat(model.capturedPrompts).hasSize(3);
+        assertThat(model.capturedPrompts.get(2)).contains(new Message("assistant", "<bash>pwd</bash>"));
+        assertThat(display.content).endsWith("Assistant: I found files and the directory is /home/user\n");
     }
 }
 
@@ -174,17 +207,26 @@ class InputStub implements UserInput {
 }
 
 class ToolStub implements com.workshop.agent.application.Tool {
-    private final String result;
-    public final List<String> executedCommands = new ArrayList<>();
+    private final List<Optional<String>> results;
+    public final List<String> requestedToolCalls = new ArrayList<>();
 
-    public ToolStub(String result) {
-        this.result = result;
+    public ToolStub() {
+        this.results = new ArrayList<>();
+        this.results.add(Optional.empty());
+    }
+
+    public ToolStub(List<Optional<String>> results) {
+        this.results = new ArrayList<>(results);
     }
 
     @Override
-    public String parseAndExecute(String command) {
-        executedCommands.add(command);
-        return result;
+    public Optional<String> parseAndExecute(String command) {
+        requestedToolCalls.add(command);
+        Optional<String> currentResult = results.get(0);
+        if (results.size() > 1) {
+            results.remove(0);
+        }
+        return currentResult;
     }
 }
 
