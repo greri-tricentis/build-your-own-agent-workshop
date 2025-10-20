@@ -8,7 +8,7 @@ public class AgentTests
     public void UserInput_Shown_On_Display()
     {
         var input = new InputStub(["Hello, Agent!", ""]);
-        var model = new LanguageModelSpy();
+        var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, display);
 
@@ -21,7 +21,7 @@ public class AgentTests
     public void UserInput_Sent_To_Model()
     {
         var input = new InputStub(["Hello, Agent!", ""]);
-        var model = new LanguageModelSpy();
+        var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, display);
 
@@ -36,7 +36,7 @@ public class AgentTests
     public void LanguageModelResponse_Shown_On_Display()
     {
         var input = new InputStub(["Hello, Agent!", ""]);
-        var model = new LanguageModelStub("Hello, what can I do for you, today!");
+        var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, display);
 
@@ -44,7 +44,7 @@ public class AgentTests
 
         Assert.That(display.Content, Does.StartWith(
             "User: Hello, Agent!\n" +
-            "Assistant: Hello, what can I do for you, today!\n"
+            "Assistant: You said: \"Hello, Agent!\"\n"
         ));
     }
     
@@ -70,7 +70,7 @@ public class AgentTests
     public void Sends_Whole_Context_To_Model()
     {
         var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
-        var model = new LanguageModelSpy();
+        var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
         var agent = new Application.Agent(input, model, display);
 
@@ -90,22 +90,6 @@ public class AgentTests
 }
 
 public class RepeatingLanguageModel : ILanguageModel
-{
-    public Message Prompt(IEnumerable<Message> messages)
-    {
-        return new Message("assistant", "You said: \"" + messages.Last().Content + "\"");
-    }
-}
-
-public class LanguageModelStub(string message) : ILanguageModel
-{
-    public Message Prompt(IEnumerable<Message> messages)
-    {
-        return new Message("assistant", message);
-    }
-}
-
-public class LanguageModelSpy : ILanguageModel
 {
     public readonly List<List<Message>> CapturedPrompts = [];
 
