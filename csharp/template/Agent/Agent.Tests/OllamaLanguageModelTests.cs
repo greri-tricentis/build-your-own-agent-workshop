@@ -73,7 +73,7 @@ public class OllamaLanguageModelTests
         var message = new Message("user", "Hello!");
         
         var response = languageModel.Prompt([message]);
-
+        
         Assert.That(AllPostRequestsForPath("/v1/chat/completions"), Has.Count.EqualTo(1));
         Assert.That(FirstActualPostRequestFor("/v1/chat/completions"), Is.EqualTo(new ChatRequest("gemma3:1b", [message])));
         Assert.That(response, Is.EqualTo(new Message("assistant", "Hello there! How can I help you today? 😊")));
