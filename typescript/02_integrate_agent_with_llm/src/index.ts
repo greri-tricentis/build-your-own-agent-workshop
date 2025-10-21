@@ -22,8 +22,8 @@ async function main() {
 
     agent(
         () => userInput.trim(),
-        (text) => console.log(text),
-        llmStub
+        llmStub,
+        (text) => console.log(text)
     );
 }
 
