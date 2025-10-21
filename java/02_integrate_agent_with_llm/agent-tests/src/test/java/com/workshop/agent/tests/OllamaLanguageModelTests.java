@@ -84,7 +84,7 @@ public class OllamaLanguageModelTests {
                           ]
                         }
                         """)));
-        assertThat(response).isEqualTo(new Message("user", "Hello there! How can I help you today? 😊"));
+        assertThat(response).isEqualTo(new Message("assistant", "Hello there! How can I help you today? 😊"));
 
     }
 
