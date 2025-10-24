@@ -2,13 +2,15 @@ namespace Agent.Application;
 
 public class Agent()
 {
+    private readonly string _systemPrompt;
     private readonly IUserInput _input;
     private readonly IDisplay _display;
     private readonly ILanguageModel _model;
     private readonly ITool _tool;
 
-    public Agent(IUserInput input, ILanguageModel model, ITool tool, IDisplay display) : this()
+    public Agent(string systemPrompt, IUserInput input, ILanguageModel model, ITool tool, IDisplay display) : this()
     {
+        _systemPrompt = systemPrompt;
         _input = input;
         _display = display;
         _model = model;
@@ -19,10 +21,7 @@ public class Agent()
     {
         var context = new List<Message>
         {
-            new("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                          "For example: send <bash>ls -la</bash> to list all files. " +
-                          "Send <bash>pwd</bash> to print the working directory. " +
-                          "Only ever respond with a single bash tool call, and no other text.")
+            new("system", _systemPrompt)
         };
 
         while (true)

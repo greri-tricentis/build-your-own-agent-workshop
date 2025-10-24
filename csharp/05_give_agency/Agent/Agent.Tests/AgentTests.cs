@@ -4,13 +4,18 @@ namespace Agent.Tests;
 
 public class AgentTests
 {
+    private const string SystemPrompt = "Always answer with a bash command using the syntax: <bash>command</bash>. " +
+                                        "For example: send <bash>ls -la</bash> to list all files. " +
+                                        "Send <bash>pwd</bash> to print the working directory. " +
+                                        "Only ever respond with a single bash command, and no other text.";
+
     [Test]
     public void UserInput_Shown_On_Display()
     {
         var input = new InputStub(["Hello, Agent!", ""]);
         var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, display);
 
         agent.Run();
 
@@ -23,17 +28,14 @@ public class AgentTests
         var input = new InputStub(["Hello, Agent!", ""]);
         var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, display);
 
         agent.Run();
 
         Assert.That(model.CapturedPrompts, Does.Contain(
             new List<Message>
             {
-                new("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                              "For example: send <bash>ls -la</bash> to list all files. " +
-                              "Send <bash>pwd</bash> to print the working directory. " +
-                              "Only ever respond with a single bash command, and no other text."),
+                new("system", SystemPrompt),
                 new("user", "Hello, Agent!")
             }
         ));
@@ -45,7 +47,7 @@ public class AgentTests
         var input = new InputStub(["Hello, Agent!", ""]);
         var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, display);
 
         agent.Run();
 
@@ -61,7 +63,7 @@ public class AgentTests
         var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
         var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, display);
 
         agent.Run();
 
@@ -79,7 +81,7 @@ public class AgentTests
         var input = new InputStub(["Hello, Agent!", "I have another Message for you.", ""]);
         var model = new RepeatingLanguageModel();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, display);
 
         agent.Run();
 
@@ -87,18 +89,12 @@ public class AgentTests
         {
             new()
             {
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                                      "For example: send <bash>ls -la</bash> to list all files. " +
-                                      "Send <bash>pwd</bash> to print the working directory. " +
-                                      "Only ever respond with a single bash command, and no other text."),
+                new Message("system", SystemPrompt),
                 new Message("user", "Hello, Agent!")
             },
             new()
             {
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                                      "For example: send <bash>ls -la</bash> to list all files. " +
-                                      "Send <bash>pwd</bash> to print the working directory. " +
-                                      "Only ever respond with a single bash command, and no other text."),
+                new Message("system", SystemPrompt),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you."),

@@ -4,6 +4,11 @@ namespace Agent.Tests;
 
 public class AgentTests
 {
+    private const string SystemPrompt = "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
+                                        "For example: send <bash>ls -la</bash> to list all files. " +
+                                        "Send <bash>pwd</bash> to print the working directory. " +
+                                        "Only ever respond with a single bash tool call, and no other text.";
+
     [Test]
     public void UserInput_Shown_On_Display()
     {
@@ -11,7 +16,7 @@ public class AgentTests
         var model = new RepeatingLanguageModel();
         var tool = new ToolStub();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
@@ -25,17 +30,14 @@ public class AgentTests
         var model = new RepeatingLanguageModel();
         var tool = new ToolStub();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
         Assert.That(model.CapturedPrompts, Does.Contain(
             new List<Message>
             {
-                new("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                              "For example: send <bash>ls -la</bash> to list all files. " +
-                              "Send <bash>pwd</bash> to print the working directory. " +
-                              "Only ever respond with a single bash tool call, and no other text."),
+                new("system", SystemPrompt),
                 new("user", "Hello, Agent!")
             }
         ));
@@ -48,7 +50,7 @@ public class AgentTests
         var model = new RepeatingLanguageModel();
         var tool = new ToolStub();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
@@ -65,7 +67,7 @@ public class AgentTests
         var model = new RepeatingLanguageModel();
         var tool = new ToolStub();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
@@ -84,7 +86,7 @@ public class AgentTests
         var model = new RepeatingLanguageModel();
         var tool = new ToolStub();
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
@@ -92,18 +94,12 @@ public class AgentTests
         {
             new()
             {
-                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                                      "For example: send <bash>ls -la</bash> to list all files. " +
-                                      "Send <bash>pwd</bash> to print the working directory. " +
-                                      "Only ever respond with a single bash tool call, and no other text."),
+                new Message("system", SystemPrompt),
                 new Message("user", "Hello, Agent!")
             },
             new()
             {
-                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                                      "For example: send <bash>ls -la</bash> to list all files. " +
-                                      "Send <bash>pwd</bash> to print the working directory. " +
-                                      "Only ever respond with a single bash tool call, and no other text."),
+                new Message("system", SystemPrompt),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you."),
@@ -118,17 +114,14 @@ public class AgentTests
         var model = new LanguageModelStub(["<bash>df -h</bash>", "Your free disk space is: 44G"]);
         var tool = new ToolStub(["Avail 44G", null]);
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
         Assert.That(tool.RecordedToolCalls, Does.Contain("<bash>df -h</bash>"));
         Assert.That(model.CapturedPrompts[1], Is.EquivalentTo(new List<Message>
         {
-            new("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                          "For example: send <bash>ls -la</bash> to list all files. " +
-                          "Send <bash>pwd</bash> to print the working directory. " +
-                          "Only ever respond with a single bash tool call, and no other text."),
+            new("system", SystemPrompt),
             new("user", "What's the free disk space on my computer?"),
             new("assistant", "<bash>df -h</bash>"),
             new("user", "Avail 44G")
@@ -147,7 +140,7 @@ public class AgentTests
         ]);
         var tool = new ToolStub(["file1.txt file2.txt", "/home/user", null]);
         var display = new DisplayStub();
-        var agent = new Application.Agent(input, model, tool, display);
+        var agent = new Application.Agent(SystemPrompt, input, model, tool, display);
 
         agent.Run();
 
