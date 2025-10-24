@@ -8,10 +8,7 @@ export type Tool = (message: string) => Promise<string> | undefined;
 export const agent: Agent = async (input: Input, display: Display, languageModel: LanguageModel, tool: Tool = () => undefined) => {
   let context = [{
     role: "system",
-    content: `Always answer with a bash command using the syntax: <bash>command</bash>. 
-For example: send <bash>ls -la</bash> to list all files. 
-Send <bash>pwd</bash> to print the working directory. 
-Only ever respond with a single bash command, and no other text.`
+    content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.`
   }] as Message[];
 
   while (true) {
