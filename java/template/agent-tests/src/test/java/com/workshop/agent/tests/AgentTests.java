@@ -14,13 +14,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AgentTests {
     private final DisplayStub display = new DisplayStub();
+    private final String systemPrompt = "System prompt";
 
     @Test
     public void shows_user_input_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
         ToolStub tool = new ToolStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
@@ -32,16 +33,13 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         ToolStub tool = new ToolStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
         assertThat(model.capturedPrompts).hasSize(1);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash tool call, and no other text."),
+                new Message("system", "System prompt"),
                 new Message("user", "Hello, Agent!")
         );
     }
@@ -51,7 +49,7 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
         ToolStub tool = new ToolStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
@@ -69,7 +67,7 @@ public class AgentTests {
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
         ToolStub tool = new ToolStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
@@ -89,23 +87,17 @@ public class AgentTests {
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
         ToolStub tool = new ToolStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
         assertThat(model.capturedPrompts).hasSize(2);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash tool call, and no other text."),
+                new Message("system", "System prompt"),
                 new Message("user", "Hello, Agent!")
         );
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash tool call, and no other text."),
+                new Message("system", "System prompt"),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you.")
@@ -121,16 +113,13 @@ public class AgentTests {
                 Optional.empty()
         ));
         DisplayStub display = new DisplayStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
         assertThat(tool.requestedToolCalls).containsExactly("<bash>df -h</bash>", "Your free disk space is: 44G");
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "Always answer with a bash tool call using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash tool call, and no other text."),
+                new Message("system", "System prompt"),
                 new Message("user", "What's the free disk space on my computer?"),
                 new Message("assistant", "<bash>df -h</bash>"),
                 new Message("user", "Avail 44G")
@@ -153,7 +142,7 @@ public class AgentTests {
         );
         ToolStub tool = new ToolStub(toolResults);
         DisplayStub display = new DisplayStub();
-        Agent agent = new Agent(input, model, tool, display);
+        Agent agent = new Agent(systemPrompt, input, model, tool, display);
 
         agent.run();
 
