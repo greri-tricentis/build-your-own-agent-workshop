@@ -38,10 +38,10 @@ public class AgentTests {
 
         assertThat(model.capturedPrompts).hasSize(1);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                new Message("system", "You are a helpful assistant with access to the bash cli. " +
+                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
+                        "For example: send <bash>pwd</bash> to print the current working directory. " +
+                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
                 new Message("user", "Hello, Agent!")
         );
     }
@@ -95,17 +95,17 @@ public class AgentTests {
 
         assertThat(model.capturedPrompts).hasSize(2);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                new Message("system", "You are a helpful assistant with access to the bash cli. " +
+                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
+                        "For example: send <bash>pwd</bash> to print the current working directory. " +
+                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
                 new Message("user", "Hello, Agent!")
         );
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                new Message("system", "You are a helpful assistant with access to the bash cli. " +
+                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
+                        "For example: send <bash>pwd</bash> to print the current working directory. " +
+                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you.")
@@ -124,10 +124,10 @@ public class AgentTests {
 
         assertThat(tool.executedCommands).containsExactly("<bash>df -h</bash>");
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                        "For example: send <bash>ls -la</bash> to list all files. " +
-                        "Send <bash>pwd</bash> to print the working directory. " +
-                        "Only ever respond with a single bash command, and no other text."),
+                new Message("system", "You are a helpful assistant with access to the bash cli. " +
+                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
+                        "For example: send <bash>pwd</bash> to print the current working directory. " +
+                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
                 new Message("user", "What's the free disk space on my computer?"),
                 new Message("assistant", "<bash>df -h</bash>"),
                 new Message("user", "Avail 44G")

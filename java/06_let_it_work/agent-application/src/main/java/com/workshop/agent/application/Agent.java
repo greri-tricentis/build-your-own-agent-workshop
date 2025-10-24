@@ -19,10 +19,10 @@ public class Agent {
 
     public void run() {
         List<Message> context = new ArrayList<>();
-        context.add(new Message("system", "Always answer with a bash command using the syntax: <bash>command</bash>. " +
-                "For example: send <bash>ls -la</bash> to list all files. " +
-                "Send <bash>pwd</bash> to print the working directory. " +
-                "Only ever respond with a single bash command, and no other text."));
+        context.add(new Message("system", "You are a helpful assistant with access to the bash cli. " +
+                "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
+                "For example: send <bash>pwd</bash> to print the current working directory. " +
+                "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."));
 
         while (true) {
             String userInput = input.getInput();
@@ -40,7 +40,10 @@ public class Agent {
             Optional<String> toolResult = tool.parseAndExecute(answer.content());
             if (toolResult.isEmpty()) continue;
 
-            context.add(new Message("user", toolResult.get()));
+            Message toolResultMessage = new Message("user", toolResult.get());
+            context.add(toolResultMessage);
+            display.show(toolResultMessage);
+
             Message answerAfterTool = model.prompt(context);
             display.show(answerAfterTool);
             // not yet adding answerAfterTool to context

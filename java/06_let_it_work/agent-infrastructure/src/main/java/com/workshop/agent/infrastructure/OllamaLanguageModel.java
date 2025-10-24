@@ -1,6 +1,5 @@
 package com.workshop.agent.infrastructure;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.workshop.agent.application.LanguageModel;
