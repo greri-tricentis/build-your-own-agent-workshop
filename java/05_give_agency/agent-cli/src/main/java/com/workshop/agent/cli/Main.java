@@ -11,8 +11,11 @@ public class Main {
         //LanguageModel model = new OllamaLanguageModel("http://localhost:11434", "gemma3:1b");
         Tool tool = new BashTool();
         Display display = new ConsoleDisplay();
-
-        Agent agent = new Agent(input, model, /*tool,*/ display);
+        String systemPrompt = "You are a helpful assistant with access to the bash cli. " +
+                "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
+                "For example: send <bash>pwd</bash> to print the current working directory. " +
+                "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.";
+        Agent agent = new Agent(systemPrompt, input, model, /*tool,*/ display);
 
         agent.run();
     }

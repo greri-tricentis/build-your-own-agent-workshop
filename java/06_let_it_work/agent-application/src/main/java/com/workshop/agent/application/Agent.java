@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class Agent {
+    private final String systemPrompt;
     private final UserInput input;
     private final Display display;
     private final LanguageModel model;
     private final Tool tool;
 
-    public Agent(UserInput input, LanguageModel model, Tool tool, Display display) {
+    public Agent(String systemPrompt, UserInput input, LanguageModel model, Tool tool, Display display) {
+        this.systemPrompt = systemPrompt;
         this.input = input;
         this.display = display;
         this.model = model;
@@ -19,10 +21,7 @@ public class Agent {
 
     public void run() {
         List<Message> context = new ArrayList<>();
-        context.add(new Message("system", "You are a helpful assistant with access to the bash cli. " +
-                "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
-                "For example: send <bash>pwd</bash> to print the current working directory. " +
-                "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."));
+        context.add(new Message("system", systemPrompt));
 
         while (true) {
             String userInput = input.getInput();

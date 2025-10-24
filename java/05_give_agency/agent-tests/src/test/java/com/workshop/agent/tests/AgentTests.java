@@ -13,12 +13,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AgentTests {
     private final DisplayStub display = new DisplayStub();
+    private final String systemPrompt = "System prompt";
 
     @Test
     public void shows_user_input_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
-        Agent agent = new Agent(input, model, display);
+        Agent agent = new Agent(systemPrompt, input, model, display);
 
         agent.run();
 
@@ -29,16 +30,13 @@ public class AgentTests {
     public void sends_user_input_to_model() {
         UserInput input = new InputStub("Hello, Agent!", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
-        Agent agent = new Agent(input, model, display);
+        Agent agent = new Agent(systemPrompt, input, model, display);
 
         agent.run();
 
         assertThat(model.capturedPrompts).hasSize(1);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "You are a helpful assistant with access to the bash cli. " +
-                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
-                        "For example: send <bash>pwd</bash> to print the current working directory. " +
-                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
+                new Message("system", systemPrompt),
                 new Message("user", "Hello, Agent!")
         );
     }
@@ -47,7 +45,7 @@ public class AgentTests {
     public void shows_model_response_on_display() {
         UserInput input = new InputStub("Hello, Agent!", "");
         LanguageModel model = new RepeatingLanguageModel();
-        Agent agent = new Agent(input, model, display);
+        Agent agent = new Agent(systemPrompt, input, model, display);
 
         agent.run();
 
@@ -64,7 +62,7 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
-        Agent agent = new Agent(input, model, display);
+        Agent agent = new Agent(systemPrompt, input, model, display);
 
         agent.run();
 
@@ -83,23 +81,17 @@ public class AgentTests {
         UserInput input = new InputStub("Hello, Agent!", "I have another Message for you.", "");
         RepeatingLanguageModel model = new RepeatingLanguageModel();
         DisplayStub display = new DisplayStub();
-        Agent agent = new Agent(input, model, display);
+        Agent agent = new Agent(systemPrompt, input, model, display);
 
         agent.run();
 
         assertThat(model.capturedPrompts).hasSize(2);
         assertThat(model.capturedPrompts.get(0)).containsExactly(
-                new Message("system", "You are a helpful assistant with access to the bash cli. " +
-                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
-                        "For example: send <bash>pwd</bash> to print the current working directory. " +
-                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
+                new Message("system", "System prompt"),
                 new Message("user", "Hello, Agent!")
         );
         assertThat(model.capturedPrompts.get(1)).containsExactly(
-                new Message("system", "You are a helpful assistant with access to the bash cli. " +
-                        "Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. " +
-                        "For example: send <bash>pwd</bash> to print the current working directory. " +
-                        "It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text."),
+                new Message("system", "System prompt"),
                 new Message("user", "Hello, Agent!"),
                 new Message("assistant", "You said: \"Hello, Agent!\""),
                 new Message("user", "I have another Message for you.")
