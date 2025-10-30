@@ -9,5 +9,5 @@ When running Git commands that may invoke a pager (e.g., diff, log, show, blame,
 
 To run the tests use the `test.sh` script.
 ```
-./test.sh # run all tests of the whole solution
+./test.sh # runs all tests
 ```
