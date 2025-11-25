@@ -1,7 +1,7 @@
 export type Input = () => Promise<string>;
 export type Display = (text: string) => void;
 export type Agent = (input: Input, display: Display, languageModel: LanguageModel, tool?: Tool) => Promise<void>;
-export type Message = { role: "user" | "agent" | "system"; content: string };
+export type Message = { role: "user" | "assistant" | "system"; content: string };
 export type LanguageModel = (messages: Message[]) => Promise<Message>;
 export type Tool = (message: string) => Promise<string> | undefined;
 
