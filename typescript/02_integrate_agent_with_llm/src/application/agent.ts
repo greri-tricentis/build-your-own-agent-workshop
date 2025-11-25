@@ -1,7 +1,7 @@
 export type Input = () => string;
 export type Display = (text: string) => void;
 export type Agent = (input: Input, languageModel: LanguageModel, display: Display) => void;
-export type Message = { role: "user" | "agent" | "system" ; content: string };
+export type Message = { role: "user" | "assistant" | "system"; content: string };
 export type LanguageModel = (messages: Message[]) => Message;
 
 export const agent: Agent = (input: Input, languageModel: LanguageModel, display: Display) => {
