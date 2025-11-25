@@ -9,7 +9,7 @@ describe("Agent", () => {
       .mockResolvedValueOnce("");
     const displaySpy: Display = vi.fn();
     const languageModel: LanguageModel = vi.fn().mockResolvedValue({
-      role: "agent",
+      role: "assistant",
       content: "Hello there!"
     });
 
@@ -27,7 +27,7 @@ describe("Agent", () => {
     const languageModel: LanguageModel = vi.fn().mockImplementation(async (messages: Message[]) => {
       const userMessage = messages[messages.length - 1];
       return {
-        role: "agent",
+        role: "assistant",
         content: `You said: "${userMessage.content}"`
       };
     });
@@ -36,9 +36,9 @@ describe("Agent", () => {
 
     expect(languageModel).toHaveBeenLastCalledWith([
       { role: "user", content: "Hello, Agent!" },
-      { role: "agent", content: "You said: \"Hello, Agent!\"" },
+      { role: "assistant", content: "You said: \"Hello, Agent!\"" },
       { role: "user", content: "I have another message for you!" },
-      { role: "agent", content: "You said: \"I have another message for you!\"" }
+      { role: "assistant", content: "You said: \"I have another message for you!\"" }
     ]);
   });
 });
