@@ -1,33 +1,22 @@
-import { describe, it, expect } from "vitest";
-import { agent, Display, Input, LanguageModel, Message } from "./agent";
-import _ from "lodash";
+import { describe, it, expect, vi } from "vitest";
+import { agent, Display, Input, LanguageModel } from "./agent";
 
 describe("Agent", () => {
-  let textOnDisplay = "";
 
   it("displays message from user, sends user input to llm and displays its answer", async () => {
-    await agent(inputStub, displaySpy, languageModelStub);
-    expect(textOnDisplay).toBe(
-      "User: Hello, Agent!\n" +
-      "Agent: Hi there! Yes, you are right!\n"
-    );
+    const inputStub: Input = vi.fn().mockReturnValue("Hello, Agent!");
+    const displaySpy: Display = vi.fn();
+    const languageModel: LanguageModel = vi.fn().mockResolvedValue({
+      role: "agent",
+      content: "Hi there! Yes, you are right!"
+    });
+
+    await agent(inputStub, displaySpy, languageModel);
+
+    expect(displaySpy).toHaveBeenNthCalledWith(1, "User: Hello, Agent!");
+    expect(displaySpy).toHaveBeenNthCalledWith(2, "Agent: Hi there! Yes, you are right!");
+    expect(languageModel).toHaveBeenCalledWith([{ role: "user", content: "Hello, Agent!" }]);
   });
-
-  const languageModelStub: LanguageModel = async (messages: Message[]) => {
-    if (_.isEqual(messages[0], { role: "user", content: "Hello, Agent!" })) {
-      return { role: "agent", content: "Hi there! Yes, you are right!" };
-    }
-
-    throw new Error("Unexpected input to language model");
-  }
-
-  const inputStub: Input = () => {
-    return "Hello, Agent!"
-  };
-
-  const displaySpy: Display = (text: string) => {
-    textOnDisplay += text + "\n";
-  };
 });
 
 
