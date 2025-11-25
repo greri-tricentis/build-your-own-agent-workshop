@@ -7,7 +7,7 @@ describe("Agent", () => {
     const inputStub: Input = vi.fn().mockReturnValue("Hello, Agent!");
     const displaySpy: Display = vi.fn();
     const languageModel: LanguageModel = vi.fn().mockResolvedValue({
-      role: "agent",
+      role: "assistant",
       content: "Hi there! Yes, you are right!"
     });
 

@@ -3,16 +3,16 @@ import { createInterface } from "readline/promises"
 import { stdin as input, stdout as output } from "node:process"
 
 export async function ask(): Promise<string> {
-  const rl = createInterface({ input, output })
-  const answer = await rl.question("> ")
-  rl.close()
-  return answer
+    const rl = createInterface({ input, output })
+    const answer = await rl.question("> ")
+    rl.close()
+    return answer
 }
 
 const llmStub: LanguageModel = async (messages: Message[]) => {
     const userMessage = messages[messages.length - 1];
     return {
-        role: "agent",
+        role: "assistant",
         content: `You said: "${userMessage.content}"`
     };
 };
