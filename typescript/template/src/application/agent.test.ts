@@ -36,7 +36,8 @@ describe("Agent", () => {
 
     expect(languageModel).toHaveBeenLastCalledWith([
       {
-        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.` },
+        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.`
+      },
       { role: "user", content: "Hello, Agent!" },
       { role: "agent", content: "You said: \"Hello, Agent!\"" },
       { role: "user", content: "I have another message for you!" },
@@ -63,12 +64,35 @@ describe("Agent", () => {
     expect(toolStub).toHaveBeenCalledWith("<bash>df -h</bash>");
     expect(languageModel).toHaveBeenLastCalledWith([
       {
-        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.` },
+        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.`
+      },
       { role: "user", content: "What's the free disk space?" },
       { role: "agent", content: "<bash>df -h</bash>" },
       { role: "user", content: "Avail 44G" },
       { role: "agent", content: "Done checking disk space." }
     ]);
+  });
+  it("executes multiple tool calls in a loop until completion", async () => {
+    const inputStub: Input = vi.fn()
+      .mockResolvedValueOnce("Check disk space and list files")
+      .mockResolvedValueOnce("");
+
+    const languageModel: LanguageModel = vi.fn()
+      .mockResolvedValueOnce({ role: "agent", content: "<bash>df -h</bash>" })
+      .mockResolvedValueOnce({ role: "agent", content: "<bash>ls -la</bash>" })
+      .mockResolvedValueOnce({ role: "agent", content: "Done." });
+
+    const toolStub: Tool = vi.fn()
+      .mockResolvedValueOnce("Avail 44G")
+      .mockResolvedValueOnce("file1.txt")
+      .mockResolvedValueOnce(undefined);
+
+    await agent(inputStub, vi.fn(), languageModel, toolStub);
+
+    expect(toolStub).toHaveBeenNthCalledWith(1, "<bash>df -h</bash>");
+    expect(toolStub).toHaveBeenNthCalledWith(2, "<bash>ls -la</bash>");
+    expect(toolStub).toHaveBeenNthCalledWith(3, "Done.");
+    expect(languageModel).toHaveBeenCalledTimes(3);
   });
 });
 

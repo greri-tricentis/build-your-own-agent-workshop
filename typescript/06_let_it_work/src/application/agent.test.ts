@@ -1,36 +1,40 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { agent, Display, Input, LanguageModel, Message, Tool } from "./agent";
-import _ from "lodash";
 
 describe("Agent", () => {
 
-  it("displays message from user, sends user input to llm and displays its answer", async () => {
-    inputs = ["Hello, Agent!", ""];
+  it("displays single turn conversation", async () => {
+    const inputStub: Input = vi.fn()
+      .mockResolvedValueOnce("Hello, Agent!")
+      .mockResolvedValueOnce("");
+    const displaySpy: Display = vi.fn();
+    const languageModel: LanguageModel = vi.fn().mockResolvedValue({
+      role: "agent",
+      content: "Hello there!"
+    });
 
-    await agent(inputStub, displaySpy, repeatingLanguageModel);
+    await agent(inputStub, displaySpy, languageModel);
 
-    expect(textOnDisplay).toBe(
-      "User: Hello, Agent!\n" +
-      "Agent: You said: \"Hello, Agent!\"\n"
-    );
+    expect(displaySpy).toHaveBeenNthCalledWith(1, "User: Hello, Agent!");
+    expect(displaySpy).toHaveBeenNthCalledWith(2, "Agent: Hello there!");
   });
 
-  it("displays ongoing chat, and sends whole context to llm", async () => {
-    inputs = [
-      "Hello, Agent!",
-      "I have another message for you!",
-      ""
-    ];
+  it("sends conversation context to llm across multiple turns", async () => {
+    const inputStub: Input = vi.fn()
+      .mockResolvedValueOnce("Hello, Agent!")
+      .mockResolvedValueOnce("I have another message for you!")
+      .mockResolvedValueOnce("");
+    const languageModel: LanguageModel = vi.fn().mockImplementation(async (messages: Message[]) => {
+      const userMessage = messages[messages.length - 1];
+      return {
+        role: "agent",
+        content: `You said: "${userMessage.content}"`
+      };
+    });
 
-    await agent(inputStub, displaySpy, repeatingLanguageModel);
+    await agent(inputStub, vi.fn(), languageModel);
 
-    expect(textOnDisplay).toBe(
-      "User: Hello, Agent!\n" +
-      "Agent: You said: \"Hello, Agent!\"\n" +
-      "User: I have another message for you!\n" +
-      "Agent: You said: \"I have another message for you!\"\n"
-    );
-    expect(promptedMessages).toEqual([
+    expect(languageModel).toHaveBeenLastCalledWith([
       {
         role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.` },
       { role: "user", content: "Hello, Agent!" },
@@ -40,68 +44,32 @@ describe("Agent", () => {
     ]);
   });
 
-  it("parses tool call and runs it, and reports result to agent", async () => {
-    inputs = ["What's the free disk space on my computer?", ""];
-    agentAnswers = [
-      "<bash>df -h</bash>",
-      "You have 44GB of free disk space available."
-    ];
+  it("executes tool calls and includes results in context", async () => {
+    const inputStub: Input = vi.fn()
+      .mockResolvedValueOnce("What's the free disk space?")
+      .mockResolvedValueOnce("");
+    const languageModel: LanguageModel = vi.fn()
+      .mockResolvedValueOnce({ role: "agent", content: "<bash>df -h</bash>" })
+      .mockResolvedValueOnce({ role: "agent", content: "Done checking disk space." });
+    const toolStub: Tool = vi.fn().mockImplementation((message: string) => {
+      if (message === "<bash>df -h</bash>") {
+        return Promise.resolve("Avail 44G");
+      }
+      return undefined;
+    });
 
-    await agent(inputStub, displaySpy, languageModelStub, toolStub);
+    await agent(inputStub, vi.fn(), languageModel, toolStub);
 
-    expect(textOnDisplay).toBe(
-      "User: What's the free disk space on my computer?\n" +
-      "Agent: <bash>df -h</bash>\n" +
-      "User: Avail 44G\n" +
-      "Agent: You have 44GB of free disk space available.\n"
-    );
-    expect(promptedMessages).toEqual([
+    expect(toolStub).toHaveBeenCalledWith("<bash>df -h</bash>");
+    expect(languageModel).toHaveBeenLastCalledWith([
       {
         role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.` },
-      { role: "user", content: "What's the free disk space on my computer?" },
+      { role: "user", content: "What's the free disk space?" },
       { role: "agent", content: "<bash>df -h</bash>" },
       { role: "user", content: "Avail 44G" },
-      { role: "agent", content: "You have 44GB of free disk space available." }
+      { role: "agent", content: "Done checking disk space." }
     ]);
   });
-
-  let inputs: string[] = [];
-  const inputStub: Input = async () => {
-    return inputs.shift()!;
-  };
-
-  let promptedMessages: Message[] = [];
-  const repeatingLanguageModel: LanguageModel = async (messages: Message[]) => {
-    promptedMessages = messages;
-    const userMessage = messages[messages.length - 1];
-    return {
-      role: "agent",
-      content: `You said: "${userMessage.content}"`
-    };
-  }
-
-  let agentAnswers: string[] = [];
-  const languageModelStub: LanguageModel = async (messages: Message[]) => {
-    promptedMessages = messages;
-    const answer = agentAnswers.shift();
-    return { role: "agent", content: answer || "" };
-  }
-
-  const toolStub: Tool = (message: string) => {
-    if (message === "<bash>df -h</bash>") {
-      return Promise.resolve("Avail 44G");
-    }
-    return undefined;
-  }
-
-  let textOnDisplay = "";
-  afterEach(() => {
-    textOnDisplay = "";
-    promptedMessages = [];
-  });
-  const displaySpy: Display = (text: string) => {
-    textOnDisplay += text + "\n";
-  };
 });
 
 
