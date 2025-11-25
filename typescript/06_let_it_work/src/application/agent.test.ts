@@ -9,14 +9,14 @@ describe("Agent", () => {
       .mockResolvedValueOnce("");
     const displaySpy: Display = vi.fn();
     const languageModel: LanguageModel = vi.fn().mockResolvedValue({
-      role: "agent",
+      role: "assistant",
       content: "Hello there!"
     });
 
     await agent(inputStub, displaySpy, languageModel);
 
     expect(displaySpy).toHaveBeenNthCalledWith(1, "User: Hello, Agent!");
-    expect(displaySpy).toHaveBeenNthCalledWith(2, "Agent: Hello there!");
+    expect(displaySpy).toHaveBeenNthCalledWith(2, "Assistant: Hello there!");
   });
 
   it("sends conversation context to llm across multiple turns", async () => {
@@ -27,7 +27,7 @@ describe("Agent", () => {
     const languageModel: LanguageModel = vi.fn().mockImplementation(async (messages: Message[]) => {
       const userMessage = messages[messages.length - 1];
       return {
-        role: "agent",
+        role: "assistant",
         content: `You said: "${userMessage.content}"`
       };
     });
@@ -36,11 +36,12 @@ describe("Agent", () => {
 
     expect(languageModel).toHaveBeenLastCalledWith([
       {
-        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.` },
+        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.`
+      },
       { role: "user", content: "Hello, Agent!" },
-      { role: "agent", content: "You said: \"Hello, Agent!\"" },
+      { role: "assistant", content: "You said: \"Hello, Agent!\"" },
       { role: "user", content: "I have another message for you!" },
-      { role: "agent", content: "You said: \"I have another message for you!\"" }
+      { role: "assistant", content: "You said: \"I have another message for you!\"" }
     ]);
   });
 
@@ -49,8 +50,8 @@ describe("Agent", () => {
       .mockResolvedValueOnce("What's the free disk space?")
       .mockResolvedValueOnce("");
     const languageModel: LanguageModel = vi.fn()
-      .mockResolvedValueOnce({ role: "agent", content: "<bash>df -h</bash>" })
-      .mockResolvedValueOnce({ role: "agent", content: "Done checking disk space." });
+      .mockResolvedValueOnce({ role: "assistant", content: "<bash>df -h</bash>" })
+      .mockResolvedValueOnce({ role: "assistant", content: "Done checking disk space." });
     const toolStub: Tool = vi.fn().mockImplementation((message: string) => {
       if (message === "<bash>df -h</bash>") {
         return Promise.resolve("Avail 44G");
@@ -63,11 +64,12 @@ describe("Agent", () => {
     expect(toolStub).toHaveBeenCalledWith("<bash>df -h</bash>");
     expect(languageModel).toHaveBeenLastCalledWith([
       {
-        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.` },
+        role: "system", content: `You are a helpful assistant with access to the bash cli. Run a command using messages like <bash>ls -la</bash>, always wrapping the desired command in the xml tag. For example: send <bash>pwd</bash> to print the current working directory. It is VERY important that YOU DO wrap your command in the xml tag and do not include any other text.`
+      },
       { role: "user", content: "What's the free disk space?" },
-      { role: "agent", content: "<bash>df -h</bash>" },
+      { role: "assistant", content: "<bash>df -h</bash>" },
       { role: "user", content: "Avail 44G" },
-      { role: "agent", content: "Done checking disk space." }
+      { role: "assistant", content: "Done checking disk space." }
     ]);
   });
 });
