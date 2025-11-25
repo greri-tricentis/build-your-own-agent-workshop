@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to script directory
+cd "$(dirname "$0")"
+
 # Run tests and capture output
 output=$(npm test -- --run 2>&1)
 exit_code=$?
