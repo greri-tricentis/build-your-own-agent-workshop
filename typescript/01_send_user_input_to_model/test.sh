@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 # Run tests and capture output
-output=$(npm test -- --run 2>&1)
+output=$(pnpm test -- --run 2>&1)
 exit_code=$?
 
 # Count number of tests from output
